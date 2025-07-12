@@ -4,6 +4,12 @@ import { UserModel } from '../models/User';
 import { PostModel } from '../models/Post';
 import { AuthRequest } from '../types';
 
+/**
+ * Validation rules for updating user profile.
+ * These rules will be applied to the request body.
+ * - First name and last name must be less than 100 characters.
+ * - Bio must be less than 500 characters.
+ */
 export const updateProfileValidation = [
   body('firstName')
     .optional()
@@ -19,6 +25,13 @@ export const updateProfileValidation = [
     .withMessage('Bio must be less than 500 characters')
 ];
 
+/**
+ * Handles the retrieval of a user profile.
+ * Validates the request parameters and returns the user profile if found.
+ *
+ * @param {Request} req - The request object containing the user ID in the parameters.
+ * @param {Response} res - The response object to send the result.
+ */
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -53,6 +66,13 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
+/**
+ * Handles the update of a user profile.
+ * Validates the request body, checks for errors, and updates the user profile in the database.
+ *
+ * @param {AuthRequest} req - The request object containing user data and profile updates.
+ * @param {Response} res - The response object to send the result.
+ */
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
@@ -92,6 +112,13 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
   }
 };
 
+/**
+ * Handles the retrieval of posts created by a specific user.
+ * Validates the request parameters and returns the user's posts with pagination.
+ *
+ * @param {Request} req - The request object containing the user ID in the parameters.
+ * @param {Response} res - The response object to send the result.
+ */
 export const getUserPosts = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -127,6 +154,13 @@ export const getUserPosts = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+/**
+ * Handles the retrieval of the user's timeline.
+ * Returns posts from users that the authenticated user follows, with pagination.
+ *
+ * @param {AuthRequest} req - The request object containing user data.
+ * @param {Response} res - The response object to send the result.
+ */
 export const getTimeline = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user!.id;

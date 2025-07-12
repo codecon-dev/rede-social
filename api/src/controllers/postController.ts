@@ -3,6 +3,12 @@ import { body, validationResult } from 'express-validator';
 import { PostModel } from '../models/Post';
 import { AuthRequest, CreatePostData } from '../types';
 
+/**
+ * Validation rules for creating a post.
+ * These rules will be applied to the request body.
+ * - Content must be between 1 and 2000 characters.
+ * - Image URL is optional but must be a valid URL if provided.
+ */
 export const createPostValidation = [
   body('content')
     .isLength({ min: 1, max: 2000 })
@@ -13,12 +19,24 @@ export const createPostValidation = [
     .withMessage('Image URL must be a valid URL')
 ];
 
+/**
+ * Validation rules for updating a post.
+ * These rules will be applied to the request body.
+ * - Content must be between 1 and 2000 characters.
+ */
 export const updatePostValidation = [
   body('content')
     .isLength({ min: 1, max: 2000 })
     .withMessage('Post content must be between 1 and 2000 characters')
 ];
 
+/**
+ * Handles the creation of a new post.
+ * Validates the request body, checks for errors, and creates a new post in the database.
+ *
+ * @param {AuthRequest} req - The request object containing user data and post content.
+ * @param {Response} res - The response object to send the result.
+ */
 export const createPost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
@@ -45,6 +63,13 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
+/**
+ * Handles the retrieval of a post by its ID.
+ * Validates the request parameters and returns the post if found.
+ *
+ * @param {Request} req - The request object containing the post ID in the parameters.
+ * @param {Response} res - The response object to send the result.
+ */
 export const getPost = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -68,6 +93,13 @@ export const getPost = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+/**
+ * Handles the update of an existing post.
+ * Validates the request body, checks if the user has permission to edit the post, and updates it.
+ *
+ * @param {AuthRequest} req - The request object containing user data and post content.
+ * @param {Response} res - The response object to send the result.
+ */
 export const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
@@ -105,6 +137,13 @@ export const updatePost = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
+/**
+ * Handles the deletion of a post.
+ * Validates the request parameters, checks if the user has permission to delete the post, and deletes it.
+ *
+ * @param {AuthRequest} req - The request object containing user data and post ID in the parameters.
+ * @param {Response} res - The response object to send the result.
+ */
 export const deletePost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -129,6 +168,13 @@ export const deletePost = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
+/**
+ * Handles the toggling of a post's like status.
+ * Validates the request parameters and updates the like status accordingly.
+ *
+ * @param {AuthRequest} req - The request object containing user data and post ID in the parameters.
+ * @param {Response} res - The response object to send the result.
+ */
 export const toggleLike = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;

@@ -1,7 +1,19 @@
 import { pool } from '../config/database';
 import { Post, CreatePostData, User } from '../types';
 
+/**
+ * PostModel handles database operations related to posts.
+ * It provides methods to create, find, update, delete posts,
+ * and manage likes and comments.
+ */
 export class PostModel {
+  /**
+   * Creates a new post in the database.
+   *
+   * @param userId - The ID of the user creating the post.
+   * @param postData - The data for the new post.
+   * @returns The created Post object.
+   */
   static async create(userId: number, postData: CreatePostData): Promise<Post> {
     const query = `
       INSERT INTO posts (user_id, content, image_url)
@@ -14,6 +26,12 @@ export class PostModel {
     return this.mapRowToPost(result.rows[0]);
   }
 
+  /**
+   * Finds a post by its ID, including user information.
+   *
+   * @param id - The ID of the post to find.
+   * @returns The Post object with user information or null if not found.
+   */
   static async findById(id: number): Promise<Post | null> {
     const query = `
       SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at, p.updated_at,
@@ -27,6 +45,14 @@ export class PostModel {
     return result.rows[0] ? this.mapRowToPostWithUser(result.rows[0]) : null;
   }
 
+  /**
+   * Finds posts by user ID, including user information.
+   *
+   * @param userId - The ID of the user whose posts to find.
+   * @param limit - The maximum number of posts to return.
+   * @param offset - The offset for pagination.
+   * @returns An array of Post objects with user information.
+   */
   static async findByUserId(userId: number, limit: number = 20, offset: number = 0): Promise<Post[]> {
     const query = `
       SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at, p.updated_at,
@@ -42,6 +68,14 @@ export class PostModel {
     return result.rows.map(row => this.mapRowToPostWithUser(row));
   }
 
+  /**
+   * Gets the timeline for a user, including posts from followed users.
+   *
+   * @param userId - The ID of the user whose timeline to retrieve.
+   * @param limit - The maximum number of posts to return.
+   * @param offset - The offset for pagination.
+   * @returns An array of Post objects with user information.
+   */
   static async getTimeline(userId: number, limit: number = 20, offset: number = 0): Promise<Post[]> {
     const query = `
       SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at, p.updated_at,
@@ -59,6 +93,14 @@ export class PostModel {
     return result.rows.map(row => this.mapRowToPostWithUser(row));
   }
 
+  /**
+   * Updates a post's content.
+   *
+   * @param id - The ID of the post to update.
+   * @param userId - The ID of the user updating the post.
+   * @param content - The new content for the post.
+   * @returns The updated Post object or null if not found.
+   */
   static async update(id: number, userId: number, content: string): Promise<Post | null> {
     const query = `
       UPDATE posts SET content = $1, updated_at = CURRENT_TIMESTAMP
@@ -70,12 +112,26 @@ export class PostModel {
     return result.rows[0] ? this.mapRowToPost(result.rows[0]) : null;
   }
 
+  /**
+   * Deletes a post.
+   *
+   * @param id - The ID of the post to delete.
+   * @param userId - The ID of the user deleting the post.
+   * @returns True if the post was deleted, false otherwise.
+   */
   static async delete(id: number, userId: number): Promise<boolean> {
     const query = `DELETE FROM posts WHERE id = $1 AND user_id = $2`;
     const result = await pool.query(query, [id, userId]);
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
+  /**
+   * Toggles a like on a post.
+   *
+   * @param postId - The ID of the post to like/unlike.
+   * @param userId - The ID of the user liking/unliking the post.
+   * @returns An object containing whether the post is liked and the updated likes count.
+   */
   static async toggleLike(postId: number, userId: number): Promise<{ liked: boolean; likesCount: number }> {
     const client = await pool.connect();
     
@@ -114,6 +170,12 @@ export class PostModel {
     }
   }
 
+  /**
+   * Maps a database row to a Post object.
+   *
+   * @param row - The database row to map.
+   * @returns The Post object.
+   */
   private static mapRowToPost(row: any): Post {
     return {
       id: row.id,
@@ -127,6 +189,12 @@ export class PostModel {
     };
   }
 
+  /**
+   * Maps a database row to a Post object with user information.
+   *
+   * @param row - The database row to map.
+   * @returns The Post object with user information.
+   */
   private static mapRowToPostWithUser(row: any): Post {
     return {
       id: row.id,

@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 
+/**
+ * Error handling middleware for Express.
+ * This middleware catches errors thrown in the application and formats them into a JSON response.
+ * It handles specific error codes and provides a generic error response for unhandled errors.
+ */
 export const errorHandler = (
   error: any,
   req: Request,

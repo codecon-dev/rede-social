@@ -12,6 +12,14 @@ export const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
+/**
+ * Connect to the PostgreSQL database, with retry logic.
+ * If the connection fails, it will retry up to a maximum number of attempts.
+ * Each retry will wait for a specified interval before attempting to connect again.
+ *
+ * @returns {Promise<void>} A promise that resolves when the connection is successful or rejects after maximum retries.
+ * @throws {Error} If the connection fails after the maximum number of retries.
+ */
 export const connectDatabase = async (): Promise<void> => {
   const maxRetries = 3;
   let retries = 0;

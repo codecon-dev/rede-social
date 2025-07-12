@@ -4,6 +4,16 @@ import { UserModel } from '../models/User';
 import { comparePassword, generateToken } from '../utils/auth';
 import { CreateUserData, LoginData } from '../types';
 
+/**
+ * Validation rules for user registration.
+ * These rules will be applied to the request body.
+ * - Username must be between 3 and 50 characters, alphanumeric and underscores only.
+ * - Email must be a valid email format.
+ * - Password must be at least 6 characters long and contain at least one uppercase letter,
+ *   one lowercase letter, and one number.
+ * * Optional fields:
+ * - First name and last name must be less than 100 characters.
+ */
 export const registerValidation = [
   body('username')
     .isLength({ min: 3, max: 50 })
@@ -29,6 +39,12 @@ export const registerValidation = [
     .withMessage('Last name must be less than 100 characters')
 ];
 
+/**
+ * Validation rules for user login.
+ * These rules will be applied to the request body.
+ * - Email must be a valid email format.
+ * - Password must not be empty.
+ */
 export const loginValidation = [
   body('email')
     .isEmail()
@@ -39,6 +55,14 @@ export const loginValidation = [
     .withMessage('Password is required')
 ];
 
+/**
+ * Handles the user registration.
+ * Validates the request body, checks for existing users, creates a new user,
+ * and returns a JWT token along with user details.
+ *
+ * @param {Request} req - The request object containing user data.
+ * @param {Response} res - The response object to send the result.
+ */
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
@@ -93,6 +117,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+/**
+ * Handles the user login.
+ * Validates the request body, checks user credentials, and returns a JWT token along with user details.
+ *
+ * @param {Request} req - The request object containing login data.
+ * @param {Response} res - The response object to send the result.
+ */
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
@@ -146,6 +177,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+/**
+ * Handles the "me" endpoint to get the authenticated user's information.
+ * Requires a valid JWT token for authentication.
+ *
+ * @param {Request} req - The request object containing user data from the token.
+ * @param {Response} res - The response object to send the user info.
+ */
 export const me = async (req: any, res: Response): Promise<void> => {
   try {
     const user = req.user;
