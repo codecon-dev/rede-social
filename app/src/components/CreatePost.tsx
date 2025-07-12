@@ -23,7 +23,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onSubmit, loading }) => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="What's on your mind?"
-          className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full p-3 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           rows={3}
           required
         />

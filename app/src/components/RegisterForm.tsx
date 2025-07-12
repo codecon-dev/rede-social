@@ -37,7 +37,7 @@ const RegisterForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="username" className="block text-sm font-medium text-slate-700">
           Username
         </label>
         <input
@@ -47,11 +47,11 @@ const RegisterForm: React.FC = () => {
           value={formData.username}
           onChange={handleChange}
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="email" className="block text-sm font-medium text-slate-700">
           Email
         </label>
         <input
@@ -61,12 +61,12 @@ const RegisterForm: React.FC = () => {
           value={formData.email}
           onChange={handleChange}
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="first_name" className="block text-sm font-medium text-slate-700">
             First Name
           </label>
           <input
@@ -75,11 +75,11 @@ const RegisterForm: React.FC = () => {
             name="first_name"
             value={formData.first_name}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
         <div>
-          <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="last_name" className="block text-sm font-medium text-slate-700">
             Last Name
           </label>
           <input
@@ -88,12 +88,12 @@ const RegisterForm: React.FC = () => {
             name="last_name"
             value={formData.last_name}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
       </div>
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="password" className="block text-sm font-medium text-slate-700">
           Password
         </label>
         <input
@@ -103,7 +103,7 @@ const RegisterForm: React.FC = () => {
           value={formData.password}
           onChange={handleChange}
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
       {error && (

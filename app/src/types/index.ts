@@ -24,6 +24,15 @@ export interface Post {
   is_liked?: boolean;
 }
 
+export interface PostPaged {
+  posts: Post[];
+  pagination: {
+    page: number;
+    limit: number;
+    hasMore: boolean;
+  }
+}
+
 export interface LoginRequest {
   email: string;
   password: string;

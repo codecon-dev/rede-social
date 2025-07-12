@@ -5,10 +5,11 @@ import type {
   User, 
   Post, 
   UpdateProfileRequest, 
-  CreatePostRequest 
+  CreatePostRequest, 
+  PostPaged
 } from '../types';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 class ApiClient {
   private getAuthHeaders(): HeadersInit {
@@ -54,8 +55,8 @@ class ApiClient {
     return this.request<User>('/auth/me');
   }
 
-  async getTimeline(): Promise<Post[]> {
-    return this.request<Post[]>('/users/timeline');
+  async getTimeline(): Promise<PostPaged> {
+    return this.request<PostPaged>('/users/timeline');
   }
 
   async getUserProfile(userId: number): Promise<User> {

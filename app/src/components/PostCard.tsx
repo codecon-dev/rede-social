@@ -24,16 +24,16 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, currentUser
   return (
     <div className="bg-white rounded-lg shadow p-6 mb-4">
       <div className="flex items-center mb-4">
-        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-          <span className="text-gray-600 font-medium">
+        <div className="w-10 h-10 bg-slate-300 rounded-full flex items-center justify-center">
+          <span className="text-slate-600 font-medium">
             {post.user?.username?.[0]?.toUpperCase() || 'U'}
           </span>
         </div>
         <div className="ml-3">
-          <p className="text-sm font-medium text-gray-900">
+          <p className="text-sm font-medium text-slate-900">
             {post.user?.username || 'Unknown User'}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-slate-500">
             {formatDate(post.created_at)}
           </p>
         </div>
@@ -48,7 +48,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, currentUser
       </div>
       
       <div className="mb-4">
-        <p className="text-gray-900">{post.content}</p>
+        <p className="text-slate-900">{post.content}</p>
         {post.image_url && (
           <img
             src={post.image_url}
@@ -58,18 +58,18 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, currentUser
         )}
       </div>
 
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-4 border-t border-slate-200">
         <button
           onClick={() => onLike(post.id)}
           className={`flex items-center space-x-1 ${
-            post.is_liked ? 'text-red-600' : 'text-gray-500 hover:text-red-600'
+            post.is_liked ? 'text-red-600' : 'text-slate-500 hover:text-red-600'
           }`}
         >
           <span>{post.is_liked ? '❤️' : '🤍'}</span>
           <span className="text-sm">{post.likes_count}</span>
         </button>
         
-        <div className="flex items-center space-x-1 text-gray-500">
+        <div className="flex items-center space-x-1 text-slate-500">
           <span>💬</span>
           <span className="text-sm">{post.comments_count}</span>
         </div>
