@@ -1,0 +1,40 @@
+---
+
+services:
+  api:
+    container_name: api
+    depends_on:
+      db:
+        condition: service_started
+    env_file:
+      ./api/.env.example
+    ports:
+      - "8080:8080"
+      - "9229:9229"
+    image: node:18-alpine
+    entrypoint: "/bin/sh -c 'npm install && npm run debug'"
+    working_dir: /app
+    volumes:
+      - "./api:/app"
+    healthcheck:
+      test: curl -f -k http://localhost:8080/health || exit 1
+      interval: 1m30s
+      timeout: 15s
+      retries: 3
+      start_period: 10s
+
+  db:
+    container_name: db
+    image: postgres:15.8-bookworm
+    env_file:
+      ./api/.env.example
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./api/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: psql -q -U $${POSTGRES_USER} -d $${POSTGRES_DB} -c 'SELECT 1'
+      interval: 1m30s
+      timeout: 15s
+      retries: 3
+      start_period: 10s
