@@ -1,0 +1,25 @@
+meta {
+  name: User Registration
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/auth/register
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "codecon",
+    "email": "admin@codecon.dev",
+    "password": "CodeCon@9",
+    "firstName": "Ricardo",
+    "lastName": "Campos"
+  }
+}

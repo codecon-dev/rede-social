@@ -1,0 +1,17 @@
+meta {
+  name: Toggle Post Like
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/api/posts/1/like
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "This is the new content for Post ID 1"
+  }
+}

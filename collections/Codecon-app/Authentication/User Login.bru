@@ -1,0 +1,22 @@
+meta {
+  name: User Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/api/auth/login
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "ricardo.campos.novo@codecon.dev",
+    "password": "CodeCon@9"
+  }
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Create Post
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/posts/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "Hello, this post was created using Bruno!",
+    "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmiro.medium.com%2Fv2%2Fresize%3Afit%3A1200%2F1*Yk7ZRKiIXkoxQ-IFSr6JeA.jpeg"
+  }
+}

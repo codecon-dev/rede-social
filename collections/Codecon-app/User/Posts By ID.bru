@@ -1,0 +1,11 @@
+meta {
+  name: Posts By ID
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8080/api/users/1/posts
+  body: none
+  auth: inherit
+}

@@ -1,0 +1,17 @@
+meta {
+  name: Delete Post By ID
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:8080/api/posts/2
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "This is the new content for Post ID 1"
+  }
+}

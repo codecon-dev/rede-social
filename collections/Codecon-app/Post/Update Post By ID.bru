@@ -1,0 +1,17 @@
+meta {
+  name: Update Post By ID
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:8080/api/posts/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "The post ID 1 is now updated!"
+  }
+}
