@@ -2,26 +2,26 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  first_name?: string;
-  last_name?: string;
+  firstName?: string;
+  lastName?: string;
   bio?: string;
-  avatar_url?: string;
-  is_verified: boolean;
-  created_at: string;
-  updated_at: string;
+  avatarUrl?: string;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Post {
   id: number;
-  user_id: number;
+  userId: number;
   content: string;
-  image_url?: string;
-  likes_count: number;
-  comments_count: number;
-  created_at: string;
-  updated_at: string;
+  imageUrl?: string;
+  likesCount: number;
+  commentsCount: number;
+  createdAt: string;
+  updatedAt: string;
   user?: User;
-  is_liked?: boolean;
+  isLiked?: boolean;
 }
 
 export interface PostPaged {

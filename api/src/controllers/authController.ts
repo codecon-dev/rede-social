@@ -188,16 +188,14 @@ export const me = async (req: any, res: Response): Promise<void> => {
   try {
     const user = req.user;
     res.json({
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        bio: user.bio,
-        avatarUrl: user.avatarUrl,
-        isVerified: user.isVerified
-      }
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      bio: user.bio,
+      avatarUrl: user.avatarUrl,
+      isVerified: user.isVerified
     });
   } catch (error) {
     console.error('Me endpoint error:', error);

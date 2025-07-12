@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Post, PostPaged } from '../types';
+import type { Post } from '../types';
 import { apiClient } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import PostCard from '../components/PostCard';
@@ -12,7 +12,7 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [postsPagination, setPostsPagination] = useState<PostPaged | null>(null);
+  // const [postsPagination, setPostsPagination] = useState<PostPaged | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
@@ -21,16 +21,15 @@ const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
   const loadTimeline = useCallback(async () => {
     try {
       const timelinePosts = await apiClient.getTimeline();
-      setPostsPagination(timelinePosts);
+      // setPostsPagination(timelinePosts);
       setPosts(timelinePosts.posts);
-      console.log('postsPagination', postsPagination);
     } catch (err) {
       setError('Failed to load timeline');
       console.error('Timeline error:', err);
     } finally {
       setLoading(false);
     }
-  }, [postsPagination]);
+  }, []);
 
   useEffect(() => {
     loadTimeline();
@@ -39,8 +38,8 @@ const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
   const handleCreatePost = async (content: string) => {
     setCreating(true);
     try {
-      const newPost = await apiClient.createPost({ content });
-      setPosts([{ ...newPost, user: user || undefined }, ...posts]);
+      await apiClient.createPost({ content });
+      await loadTimeline();
     } catch (err) {
       setError('Failed to create post');
       console.error('Create post error:', err);
@@ -56,8 +55,8 @@ const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
         if (post.id === postId) {
           return {
             ...post,
-            is_liked: response.liked,
-            likes_count: response.liked ? post.likes_count + 1 : post.likes_count - 1
+            isLiked: response.liked,
+            likesCount: response.liked ? post.likesCount + 1 : post.likesCount - 1
           };
         }
         return post;
@@ -71,7 +70,7 @@ const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
         await apiClient.deletePost(postId);
-        setPosts(posts.filter(post => post.id !== postId));
+        await loadTimeline();
       } catch (err) {
         console.error('Delete error:', err);
       }

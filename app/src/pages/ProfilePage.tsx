@@ -15,8 +15,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
   const [success, setSuccess] = useState('');
   
   const [formData, setFormData] = useState({
-    first_name: user?.first_name || '',
-    last_name: user?.last_name || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
     bio: user?.bio || '',
   });
 
@@ -48,8 +48,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
 
   const handleCancel = () => {
     setFormData({
-      first_name: user?.first_name || '',
-      last_name: user?.last_name || '',
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
       bio: user?.bio || '',
     });
     setEditing(false);
@@ -70,7 +70,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
       <Navbar onProfileClick={onBackToHome} />
       
       <div className="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-slate-900">Profile</h1>
             <button
@@ -94,9 +94,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
           )}
 
           <div className="flex items-center mb-6">
-            <div className="w-20 h-20 bg-slate-300 rounded-full flex items-center justify-center">
-              <span className="text-slate-600 text-2xl font-medium">
-                {user?.username?.[0]?.toUpperCase() || 'U'}
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-2xl font-medium">
+                {user?.username?.substring(0, 1)?.toUpperCase() || 'U'}
               </span>
             </div>
             <div className="ml-4">
@@ -105,7 +105,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
               </h2>
               <p className="text-slate-600">{user?.email}</p>
               <p className="text-sm text-slate-500">
-                Member since {user?.created_at ? formatDate(user.created_at) : 'Unknown'}
+                Member since {user?.createdAt ? formatDate(user.createdAt) : 'Unknown'}
               </p>
             </div>
           </div>
@@ -119,11 +119,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
                   </label>
                   <input
                     type="text"
-                    id="first_name"
-                    name="first_name"
-                    value={formData.first_name}
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
                 <div>
@@ -132,11 +132,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
                   </label>
                   <input
                     type="text"
-                    id="last_name"
-                    name="last_name"
-                    value={formData.last_name}
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
@@ -151,7 +151,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
                   rows={3}
                   value={formData.bio}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   placeholder="Tell us about yourself..."
                 />
               </div>
@@ -160,14 +160,14 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 transition-colors"
                 >
                   {loading ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="flex-1 bg-slate-300 text-slate-700 px-4 py-2 rounded-md hover:bg-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                  className="flex-1 bg-slate-300 text-slate-700 px-4 py-2 rounded-md hover:bg-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500/20 transition-colors"
                 >
                   Cancel
                 </button>
@@ -178,8 +178,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
               <div>
                 <h3 className="text-sm font-medium text-slate-700">Full Name</h3>
                 <p className="mt-1 text-slate-900">
-                  {user?.first_name || user?.last_name 
-                    ? `${user?.first_name || ''} ${user?.last_name || ''}`.trim()
+                  {user?.firstName || user?.lastName
+                    ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
                     : 'Not provided'
                   }
                 </p>
@@ -194,7 +194,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
 
               <button
                 onClick={() => setEditing(true)}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors"
               >
                 Edit Profile
               </button>

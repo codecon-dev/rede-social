@@ -47,7 +47,7 @@ const RegisterForm: React.FC = () => {
           value={formData.username}
           onChange={handleChange}
           required
-          className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         />
       </div>
       <div>
@@ -61,7 +61,7 @@ const RegisterForm: React.FC = () => {
           value={formData.email}
           onChange={handleChange}
           required
-          className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         />
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -75,7 +75,7 @@ const RegisterForm: React.FC = () => {
             name="first_name"
             value={formData.first_name}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
         <div>
@@ -88,7 +88,7 @@ const RegisterForm: React.FC = () => {
             name="last_name"
             value={formData.last_name}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
       </div>
@@ -103,7 +103,7 @@ const RegisterForm: React.FC = () => {
           value={formData.password}
           onChange={handleChange}
           required
-          className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         />
       </div>
       {error && (
@@ -112,7 +112,7 @@ const RegisterForm: React.FC = () => {
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2 disabled:opacity-50 transition-colors"
       >
         {loading ? 'Creating account...' : 'Create account'}
       </button>

@@ -9,7 +9,7 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="bg-white shadow-sm border-b">
+    <nav className="bg-white shadow-sm border-b border-slate-200">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -23,14 +23,14 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
             
             <button
               onClick={onProfileClick}
-              className="text-blue-600 hover:text-blue-800"
+              className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md hover:bg-blue-50 transition-colors"
             >
               Profile
             </button>
             
             <button
               onClick={logout}
-              className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+              className="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/20"
             >
               Logout
             </button>

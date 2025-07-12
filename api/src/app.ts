@@ -12,7 +12,7 @@ const app = express();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000,
   message: 'Too many requests from this IP, please try again later.'
 });
 
@@ -25,7 +25,7 @@ const corsOptions = {
 
 app.use(helmet());
 app.use(cors(corsOptions));
-app.use(limiter);
+//app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
