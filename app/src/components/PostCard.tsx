@@ -1,5 +1,7 @@
 import React from 'react';
 import type { Post } from '../types';
+import { Avatar, Button, Card, Flex, Tooltip, Text } from '@radix-ui/themes';
+import { LuMessageCircle, LuTrash } from 'react-icons/lu';
 
 interface PostCardProps {
   post: Post;
@@ -22,33 +24,22 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, currentUser
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-4 hover:shadow-md transition-shadow">
-      <div className="flex items-center mb-4">
-        <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
-          <span className="text-white font-medium">
-            {post.user?.username?.[0]?.toUpperCase() || 'U'}
-          </span>
-        </div>
-        <div className="ml-3">
-          <p className="text-sm font-medium text-slate-900">
+    <Card className='post' size={'3'}>
+      <Flex gap={'2'} align={'center'}>
+        <Avatar size={'4'} radius='full' src={post.user?.avatarUrl} fallback={post.user?.username?.substring(0, 1)?.toUpperCase() || 'U'} />
+        <div>
+          <Text size={'4'} weight={'bold'}>
             {post.user?.username || 'Unknown User'}
-          </p>
-          <p className="text-xs text-slate-500">
+          </Text> <br />
+          <Text size={'2'} color={'gray'}>
             {formatDate(post.createdAt)}
-          </p>
+          </Text>
         </div>
-        {canDelete && onDelete && (
-          <button
-            onClick={() => onDelete(post.id)}
-            className="ml-auto text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50 transition-colors"
-          >
-            Delete
-          </button>
-        )}
-      </div>
-      
-      <div className="mb-4">
-        <p className="text-slate-900">{post.content}</p>
+      </Flex>
+
+      <div className="content">
+        <p>{post.content}</p>
+
         {post.imageUrl && (
           <img
             src={post.imageUrl}
@@ -57,24 +48,30 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, currentUser
           />
         )}
       </div>
-
-      <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-        <button
+      <div className='post-buttons'>
+        <Button
           onClick={() => onLike(post.id)}
-          className={`flex items-center space-x-1 ${
-            post.isLiked ? 'text-red-600' : 'text-slate-500 hover:text-red-600'
-          }`}
-        >
-          <span>{post.isLiked ? '❤️' : '🤍'}</span>
-          <span className="text-sm">{post.likesCount}</span>
-        </button>
-        
-        <div className="flex items-center space-x-1 text-slate-500">
-          <span>💬</span>
-          <span className="text-sm">{post.commentsCount}</span>
+          variant='outline' radius='full'
+          color={post.isLiked ? 'red' : 'gray'}>
+          <span>{post.isLiked ? '❤️' : '🖤'}</span>
+          <span>{post.likesCount}</span>
+        </Button>
+
+        {canDelete && onDelete && (
+          <Tooltip content="Apagar antes que dê treta">
+            <Button onClick={() => onDelete(post.id)} color='red' variant='outline' radius='full'>
+              <LuTrash />
+            </Button>
+          </Tooltip>
+        )}
+      </div>
+      <div className="comments-count">
+        <div className='comments-content'>
+          <span><LuMessageCircle /></span>
+          <span>{post.commentsCount === 0 ? 'Ninguém te deu atenção' : post.commentsCount + ' comentários'}</span>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

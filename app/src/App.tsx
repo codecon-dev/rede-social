@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
+import './styles/index.scss';
+import Navbar from './components/Navbar';
 
 const AppContent: React.FC = () => {
-  const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState<'home' | 'profile'>('home');
+  const { user, logout, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-slate-500">Loading...</div>
+      <div className="loading">
+        <p>Loading...</p>
       </div>
     );
   }
@@ -20,18 +22,27 @@ const AppContent: React.FC = () => {
     return <LandingPage />;
   }
 
-  if (currentPage === 'profile') {
-    return <ProfilePage onBackToHome={() => setCurrentPage('home')} />;
-  }
-
-  return <HomePage onProfileClick={() => setCurrentPage('profile')} />;
+  return (
+    <>
+      <Navbar user={user} logout={logout} />
+      <div className='wrapper'>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </>
+  );
 };
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

@@ -1,0 +1,38 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.wrapper {
+	width: 100%;
+	padding: 1rem;
+	background: var(--gray-2) !important;
+	min-height: calc(100vh - 2rem - 80px);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+li {
+	color: var(--gray-12);
+	font-family: "Ubuntu", sans-serif;
+}
+
+h1 {
+	color: var(--grass-10);
+	font-size: 2.1rem;
+	line-height: 120%;
+	margin-bottom: .2rem;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}

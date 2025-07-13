@@ -4,13 +4,8 @@ import { apiClient } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import PostCard from '../components/PostCard';
 import CreatePost from '../components/CreatePost';
-import Navbar from '../components/Navbar';
 
-interface HomePageProps {
-  onProfileClick: () => void;
-}
-
-const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
+const HomePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   // const [postsPagination, setPostsPagination] = useState<PostPaged | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,9 +75,8 @@ const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50">
-        <Navbar onProfileClick={onProfileClick} />
         <div className="flex justify-center items-center h-64">
-          <div className="text-slate-500">Loading...</div>
+          <div className="text-slate-500">Carregando...</div>
         </div>
       </div>
     );
@@ -90,21 +84,20 @@ const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar onProfileClick={onProfileClick} />
-      
       <div className="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <CreatePost onSubmit={handleCreatePost} loading={creating} />
-        
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
-        
-        <div className="space-y-4">
+
+        <div className="feed">
           {posts.length === 0 ? (
-            <div className="text-center text-slate-500 py-8">
-              No posts yet. Create the first one!
+            <div className="no-content">
+              <span>😢</span>
+              <p>Você está tão sozinho quanto daquela vez que você ficou chorando no banheiro depois de muito bullying, vá fazer amigos!</p>
             </div>
           ) : (
             posts.map(post => (

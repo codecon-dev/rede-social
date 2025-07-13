@@ -1,0 +1,32 @@
+header {
+	background: var(--accent-a4);
+	display: flex;
+	align-items: center;
+	padding: .8rem 1rem 1rem;
+	height: 80px;
+
+	.side-actions {
+		margin-left: auto;
+		display: flex;
+		gap: .5rem;
+	}
+}
+
+.logo {
+	display: flex;
+	color: var(--grass-10);
+	align-items: center;
+
+	span {
+		font-size: 2rem;
+	}
+
+	h1 {
+		font-size: 1.5rem;
+		line-height: 1.5rem;
+		font-weight: 600;
+		margin-left: .5rem;
+		color: var(--grass-10);
+		margin-bottom: 0;
+	}
+}

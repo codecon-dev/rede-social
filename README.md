@@ -26,7 +26,7 @@ A full-stack social network application built with Node.js, Express, TypeScript,
 - **Framework**: React 19
 - **Language**: TypeScript
 - **Build Tool**: Vite
-- **Styling**: Tailwind CSS 4
+- **Styling**: Tailwind CSS 4 <- NOT UNDER MY WATCH 
 - **Routing**: React Router DOM
 
 ### API Documentation

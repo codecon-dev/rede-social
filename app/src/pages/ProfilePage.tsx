@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../services/api';
-import Navbar from '../components/Navbar';
+import { Avatar, Button, Card, Flex, TextArea, TextField } from '@radix-ui/themes';
+import { LuArrowLeft, LuPencil } from 'react-icons/lu';
 
-interface ProfilePageProps {
-  onBackToHome: () => void;
-}
-
-const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
+const ProfilePage: React.FC = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -37,7 +36,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
       await apiClient.updateProfile(formData);
       setSuccess('Profile updated successfully!');
       setEditing(false);
-      
+
       window.location.reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update profile');
@@ -57,152 +56,112 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackToHome }) => {
     setSuccess('');
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navbar onProfileClick={onBackToHome} />
-      
-      <div className="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-slate-900">Profile</h1>
-            <button
-              onClick={onBackToHome}
-              className="text-blue-600 hover:text-blue-800"
-            >
-              ← Back to Home
-            </button>
-          </div>
-
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-              {success}
-            </div>
-          )}
-
-          <div className="flex items-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-2xl font-medium">
-                {user?.username?.substring(0, 1)?.toUpperCase() || 'U'}
-              </span>
-            </div>
-            <div className="ml-4">
-              <h2 className="text-xl font-semibold text-slate-900">
-                @{user?.username}
-              </h2>
-              <p className="text-slate-600">{user?.email}</p>
-              <p className="text-sm text-slate-500">
-                Member since {user?.createdAt ? formatDate(user.createdAt) : 'Unknown'}
-              </p>
-            </div>
-          </div>
-
-          {editing ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="first_name" className="block text-sm font-medium text-slate-700">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="last_name" className="block text-sm font-medium text-slate-700">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="bio" className="block text-sm font-medium text-slate-700">
-                  Bio
-                </label>
-                <textarea
-                  id="bio"
-                  name="bio"
-                  rows={3}
-                  value={formData.bio}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  placeholder="Tell us about yourself..."
-                />
-              </div>
-
-              <div className="flex space-x-3">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 transition-colors"
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="flex-1 bg-slate-300 text-slate-700 px-4 py-2 rounded-md hover:bg-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500/20 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-slate-700">Full Name</h3>
-                <p className="mt-1 text-slate-900">
-                  {user?.firstName || user?.lastName
+    <section className="profile">
+      <Card size={'4'} className="profile-card">
+        <Flex gap={'6'} align={'start'}>
+          <Avatar size={'8'} radius='full' src={user?.avatarUrl} fallback={user?.username?.substring(0, 1)?.toUpperCase() || 'U'} />
+          <div>
+            {user?.firstName ? (
+              (
+                <>
+                  <h1>{user?.firstName || user?.lastName
                     ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
                     : 'Not provided'
-                  }
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-slate-700">Bio</h3>
-                <p className="mt-1 text-slate-900">
-                  {user?.bio || 'No bio provided'}
-                </p>
-              </div>
+                  }</h1>
+                  <h2><i>@{user?.username}</i></h2>
+                </>
+              )
 
-              <button
-                onClick={() => setEditing(true)}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors"
-              >
-                Edit Profile
-              </button>
-            </div>
-          )}
+            ) : (<h1>@{user?.username}</h1>)}
+
+            {!editing && <Flex gap={'2'} align={'center'}>
+              <Button variant='outline' size={'1'} onClick={() => navigate('/')}>
+                <LuArrowLeft /> Voltar
+              </Button>
+              <Button variant='outline' size={'1'} onClick={() => setEditing(true)}>
+                <LuPencil /> Editar Perfil
+              </Button>
+            </Flex>}
+
+            {editing ? (
+              <form onSubmit={handleSubmit}>
+                <Flex gap={'4'} justify={'between'}>
+                  <div>
+                    <label htmlFor="first_name">
+                      Nome
+                    </label>
+                    <TextField.Root
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      placeholder='João'
+                      value={formData.firstName}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="last_name">
+                      Sobrenome
+                    </label>
+                    <TextField.Root
+                      id="lastName"
+                      name="lastName"
+                      placeholder='Silva'
+                      value={formData.lastName}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </Flex>
+
+                <div>
+                  <label htmlFor="bio">
+                    Bio
+                  </label>
+                  <TextArea
+                    id="bio"
+                    name="bio"
+                    rows={3}
+                    value={formData.bio}
+                    radius='large'
+                    onChange={handleChange}
+                    placeholder="Conte um pouco sobre você..."
+                  />
+                </div>
+
+                <Flex gap={'2'} justify={'end'}>
+                  <Button onClick={handleCancel} variant='outline'>
+                    Cancelar
+                  </Button>
+                  <Button disabled={loading}>
+                    {loading ? 'Salvando...' : 'Salvar'}
+                  </Button>
+                </Flex>
+              </form>
+            ) : (
+              <div className='bio'>
+                <h4>Quem sou eu na fila do pão?</h4>
+                <p>
+                  <i>{user?.bio || 'Ainda não escrevi nada sobre mim.'}</i>
+                </p>
+              </div>
+            )}
+          </div>
+        </Flex>
+      </Card>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
         </div>
-      </div>
-    </div>
+      )}
+
+      {success && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          {success}
+        </div>
+      )}
+    </section>
   );
 };
 

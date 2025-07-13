@@ -1,0 +1,12 @@
+.create-post {
+	.rt-TextAreaRoot {
+		border-radius: 1.5rem !important;
+	}
+
+	.actions {
+		margin-top: -.8rem;
+		display: flex;
+		justify-content: flex-end;
+		gap: 1rem;
+	}
+}
