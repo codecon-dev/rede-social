@@ -3,6 +3,7 @@ import type { Post } from '../types';
 import { Avatar, Button, Card, Flex, Tooltip, Text } from '@radix-ui/themes';
 import { LuMessageCircle, LuTrash } from 'react-icons/lu';
 import { apiClient } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 interface PostCardProps {
   post: Post;
@@ -11,7 +12,8 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, onPostDeleted, currentUserId }) => {
-  const [postState, setPostState] = useState(post);
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState(post);
   const canDelete = currentUserId === post.userId;
 
   const formatDate = (dateString: string) => {
@@ -26,8 +28,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostDeleted, currentUserId 
 
   const handleLike = async () => {
     try {
-      const response = await apiClient.toggleLike(postState.id);
-      setPostState(prev => ({
+      const response = await apiClient.toggleLike(posts.id);
+      setPosts(prev => ({
         ...prev,
         isLiked: response.liked,
         likesCount: response.liked ? prev.likesCount + 1 : prev.likesCount - 1
@@ -39,8 +41,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostDeleted, currentUserId 
 
   const handleHate = async () => {
     try {
-      const response = await apiClient.toggleHate(postState.id);
-      setPostState(prev => ({
+      const response = await apiClient.toggleHate(posts.id);
+      setPosts(prev => ({
         ...prev,
         isHated: response.hated,
         hatesCount: response.hated ? prev.hatesCount + 1 : prev.hatesCount - 1
@@ -53,8 +55,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostDeleted, currentUserId 
   const handleDelete = async () => {
     if (window.confirm('Tem certeza que deseja deletar este post?')) {
       try {
-        await apiClient.deletePost(postState.id);
-        onPostDeleted?.(postState.id);
+        await apiClient.deletePost(posts.id);
+        onPostDeleted?.(posts.id);
       } catch (err) {
         console.error('Delete error:', err);
       }
@@ -64,23 +66,23 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostDeleted, currentUserId 
   return (
     <Card className='post' size={'3'}>
       <Flex gap={'2'} align={'center'}>
-        <Avatar size={'4'} radius='full' src={postState.user?.avatarUrl} fallback={postState.user?.username?.substring(0, 1)?.toUpperCase() || 'U'} />
+        <Avatar size={'4'} radius='full' src={posts.user?.avatarUrl} fallback={posts.user?.username?.substring(0, 1)?.toUpperCase() || 'U'} />
         <div>
-          <Text size={'4'} weight={'bold'}>
-            {postState.user?.username || 'Unknown User'}
+          <Text style={{ cursor: 'pointer' }} onClick={() => navigate('/user/' + posts.user?.username)} size={'4'} weight={'bold'}>
+            {posts.user?.username || 'Unknown User'}
           </Text> <br />
           <Text size={'2'} color={'gray'}>
-            {formatDate(postState.createdAt)}
+            {formatDate(posts.createdAt)}
           </Text>
         </div>
       </Flex>
 
       <div className="content">
-        <p>{postState.content}</p>
+        <p>{posts.content}</p>
 
-        {postState.imageUrl && (
+        {posts.imageUrl && (
           <img
-            src={postState.imageUrl}
+            src={posts.imageUrl}
             alt="Post image"
             className="mt-3 rounded-lg max-w-full h-auto"
           />
@@ -90,17 +92,17 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostDeleted, currentUserId 
         <Button
           onClick={handleHate}
           variant='outline' radius='full'
-          color={postState.isHated ? 'green' : 'gray'}>
-          <span>{postState.isHated ? '🖕' : '🖕'}</span>
-          <span>{postState.hatesCount}</span>
+          color={posts.isHated ? 'green' : 'gray'}>
+          <span>{posts.isHated ? '🖕' : '🖕'}</span>
+          <span>{posts.hatesCount}</span>
         </Button>
 
         <Button
           onClick={handleLike}
           variant='outline' radius='full'
-          color={postState.isLiked ? 'green' : 'gray'}>
-          <span>{postState.isLiked ? '💚' : '🖤'}</span>
-          <span>{postState.likesCount}</span>
+          color={posts.isLiked ? 'green' : 'gray'}>
+          <span>{posts.isLiked ? '💚' : '🖤'}</span>
+          <span>{posts.likesCount}</span>
         </Button>
 
         {canDelete && (
@@ -114,7 +116,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostDeleted, currentUserId 
       <div className="comments-count">
         <div className='comments-content'>
           <span><LuMessageCircle /></span>
-          <span>{postState.commentsCount === 0 ? 'Ninguém te deu atenção' : postState.commentsCount + ' comentários'}</span>
+          <span>{posts.commentsCount === 0 ? 'Ninguém te deu atenção' : posts.commentsCount + ' comentários'}</span>
         </div>
       </div>
     </Card>
