@@ -41,9 +41,9 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ 
-        error: 'Validation failed', 
-        details: errors.array() 
+      res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array()
       });
       return;
     }
@@ -104,9 +104,9 @@ export const updatePost = async (req: AuthRequest, res: Response): Promise<void>
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ 
-        error: 'Validation failed', 
-        details: errors.array() 
+      res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array()
       });
       return;
     }
@@ -192,6 +192,30 @@ export const toggleLike = async (req: AuthRequest, res: Response): Promise<void>
       message: result.liked ? 'Post liked' : 'Post unliked',
       liked: result.liked,
       likesCount: result.likesCount
+    });
+  } catch (error) {
+    console.error('Toggle like error:', error);
+    res.status(500).json({ error: 'Failed to toggle like' });
+  }
+};
+
+export const toggleHate = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const postId = parseInt(id);
+    const userId = req.user!.id;
+
+    if (isNaN(postId)) {
+      res.status(400).json({ error: 'Invalid post ID' });
+      return;
+    }
+
+    const result = await PostModel.toggleHate(postId, userId);
+
+    res.json({
+      message: result.hated ? 'Post hated' : 'Post liked',
+      liked: result.hated,
+      likesCount: result.hatesCount
     });
   } catch (error) {
     console.error('Toggle like error:', error);

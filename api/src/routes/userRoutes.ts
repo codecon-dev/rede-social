@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { 
-  getProfile, 
-  updateProfile, 
-  getUserPosts, 
+import {
+  getProfile,
+  updateProfile,
+  getUserPosts,
   getTimeline,
-  updateProfileValidation 
+  updateProfileValidation
 } from '../controllers/userController';
 import { authenticateToken } from '../middleware/auth';
 

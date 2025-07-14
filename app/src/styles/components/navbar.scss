@@ -1,14 +1,17 @@
 header {
 	background: var(--accent-a4);
-	display: flex;
-	align-items: center;
 	padding: .8rem 1rem 1rem;
-	height: 80px;
 
-	.side-actions {
-		margin-left: auto;
+	.navbar-top {
 		display: flex;
-		gap: .5rem;
+		align-items: center;
+		height: 80px;
+
+		.side-actions {
+			margin-left: auto;
+			display: flex;
+			gap: .5rem;
+		}
 	}
 }
 
@@ -16,6 +19,7 @@ header {
 	display: flex;
 	color: var(--grass-10);
 	align-items: center;
+	cursor: pointer;
 
 	span {
 		font-size: 2rem;

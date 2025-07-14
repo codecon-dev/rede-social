@@ -9,3 +9,31 @@ label {
 	margin-top: .5rem;
 	font-weight: 600;
 }
+
+// Not Found Page styles
+.not-found {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 60vh;
+
+	.not-found-card {
+		text-align: center;
+		max-width: 500px;
+
+		h1 {
+			color: var(--red-11);
+			margin: 0 0 1rem 0;
+		}
+
+		.not-found-message {
+			margin: 1.5rem 0;
+
+			p {
+				margin: 0.5rem 0;
+				color: var(--gray-11);
+				line-height: 1.6;
+			}
+		}
+	}
+}

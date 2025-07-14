@@ -27,6 +27,7 @@ export interface Post {
   content: string;
   imageUrl?: string;
   likesCount: number;
+  hatesCount: number;
   commentsCount: number;
   createdAt: Date;
   updatedAt: Date;

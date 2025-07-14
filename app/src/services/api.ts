@@ -1,11 +1,11 @@
-import type { 
-  AuthResponse, 
-  LoginRequest, 
-  RegisterRequest, 
-  User, 
-  Post, 
-  UpdateProfileRequest, 
-  CreatePostRequest, 
+import type {
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  User,
+  Post,
+  UpdateProfileRequest,
+  CreatePostRequest,
   PostPaged
 } from '../types';
 
@@ -28,7 +28,7 @@ class ApiClient {
     };
 
     const response = await fetch(url, config);
-    
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Network error' }));
       throw new Error(error.message || 'Request failed');
@@ -59,6 +59,11 @@ class ApiClient {
     return this.request<PostPaged>('/users/timeline');
   }
 
+  async getUserTimeline(userId: number): Promise<PostPaged> {
+    console.error('Esta api não está implementada, sorry!');
+    return this.request<PostPaged>('/users/' + userId + '/posts');
+  }
+
   async getUserProfile(userId: number): Promise<User> {
     return this.request<User>(`/users/${userId}`);
   }
@@ -83,6 +88,11 @@ class ApiClient {
 
   async toggleLike(postId: number): Promise<{ liked: boolean }> {
     return this.request<{ liked: boolean }>(`/posts/${postId}/like`, {
+      method: 'POST',
+    });
+  }
+  async toggleHate(postId: number): Promise<{ hated: boolean }> {
+    return this.request<{ hated: boolean }>(`/posts/${postId}/hate`, {
       method: 'POST',
     });
   }

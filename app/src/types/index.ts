@@ -17,11 +17,13 @@ export interface Post {
   content: string;
   imageUrl?: string;
   likesCount: number;
+  hatesCount: number;
   commentsCount: number;
   createdAt: string;
   updatedAt: string;
   user?: User;
   isLiked?: boolean;
+  isHated?: boolean;
 }
 
 export interface PostPaged {

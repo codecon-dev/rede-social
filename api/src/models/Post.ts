@@ -18,9 +18,9 @@ export class PostModel {
     const query = `
       INSERT INTO posts (user_id, content, image_url)
       VALUES ($1, $2, $3)
-      RETURNING id, user_id, content, image_url, likes_count, comments_count, created_at, updated_at
+      RETURNING id, user_id, content, image_url, likes_count, hates_count, comments_count, created_at, updated_at
     `;
-    
+
     const values = [userId, postData.content, postData.imageUrl || null];
     const result = await pool.query(query, values);
     return this.mapRowToPost(result.rows[0]);
@@ -34,13 +34,13 @@ export class PostModel {
    */
   static async findById(id: number): Promise<Post | null> {
     const query = `
-      SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at, p.updated_at,
+      SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.hates_count, p.comments_count, p.created_at, p.updated_at,
              u.id as user_id, u.username, u.first_name, u.last_name, u.avatar_url, u.is_verified
       FROM posts p
       JOIN users u ON p.user_id = u.id
       WHERE p.id = $1
     `;
-    
+
     const result = await pool.query(query, [id]);
     return result.rows[0] ? this.mapRowToPostWithUser(result.rows[0]) : null;
   }
@@ -55,7 +55,7 @@ export class PostModel {
    */
   static async findByUserId(userId: number, limit: number = 20, offset: number = 0): Promise<Post[]> {
     const query = `
-      SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at, p.updated_at,
+      SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.hates_count, p.comments_count, p.created_at, p.updated_at,
              u.id as user_id, u.username, u.first_name, u.last_name, u.avatar_url, u.is_verified
       FROM posts p
       JOIN users u ON p.user_id = u.id
@@ -63,7 +63,7 @@ export class PostModel {
       ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3
     `;
-    
+
     const result = await pool.query(query, [userId, limit, offset]);
     return result.rows.map(row => this.mapRowToPostWithUser(row));
   }
@@ -78,7 +78,7 @@ export class PostModel {
    */
   static async getTimeline(userId: number, limit: number = 20, offset: number = 0): Promise<Post[]> {
     const query = `
-      SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at, p.updated_at,
+      SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.hates_count, p.comments_count, p.created_at, p.updated_at,
              u.id as user_id, u.username, u.first_name, u.last_name, u.avatar_url, u.is_verified
       FROM posts p
       JOIN users u ON p.user_id = u.id
@@ -88,7 +88,7 @@ export class PostModel {
       ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3
     `;
-    
+
     const result = await pool.query(query, [userId, limit, offset]);
     return result.rows.map(row => this.mapRowToPostWithUser(row));
   }
@@ -105,9 +105,9 @@ export class PostModel {
     const query = `
       UPDATE posts SET content = $1, updated_at = CURRENT_TIMESTAMP
       WHERE id = $2 AND user_id = $3
-      RETURNING id, user_id, content, image_url, likes_count, comments_count, created_at, updated_at
+      RETURNING id, user_id, content, image_url, likes_count, hates_count, comments_count, created_at, updated_at
     `;
-    
+
     const result = await pool.query(query, [content, id, userId]);
     return result.rows[0] ? this.mapRowToPost(result.rows[0]) : null;
   }
@@ -134,15 +134,15 @@ export class PostModel {
    */
   static async toggleLike(postId: number, userId: number): Promise<{ liked: boolean; likesCount: number }> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       const checkQuery = `SELECT id FROM likes WHERE post_id = $1 AND user_id = $2`;
       const existing = await client.query(checkQuery, [postId, userId]);
-      
+
       let liked: boolean;
-      
+
       if (existing.rows.length > 0) {
         await client.query(`DELETE FROM likes WHERE post_id = $1 AND user_id = $2`, [postId, userId]);
         await client.query(`UPDATE posts SET likes_count = likes_count - 1 WHERE id = $1`, [postId]);
@@ -152,12 +152,12 @@ export class PostModel {
         await client.query(`UPDATE posts SET likes_count = likes_count + 1 WHERE id = $1`, [postId]);
         liked = true;
       }
-      
+
       const countQuery = `SELECT likes_count FROM posts WHERE id = $1`;
       const countResult = await client.query(countQuery, [postId]);
-      
+
       await client.query('COMMIT');
-      
+
       return {
         liked,
         likesCount: countResult.rows[0].likes_count
@@ -168,6 +168,45 @@ export class PostModel {
     } finally {
       client.release();
     }
+  }
+
+  static async toggleHate(postId: number, userId: number): Promise<{ hated: boolean; hatesCount: number }> {
+    const client = await pool.connect();
+
+    try {
+      await client.query('BEGIN');
+
+      const checkQuery = `SELECT id FROM hates WHERE post_id = $1 AND user_id = $2`;
+      const existing = await client.query(checkQuery, [postId, userId]);
+
+      let hated: boolean;
+
+      if (existing.rows.length > 0) {
+        await client.query(`DELETE FROM hates WHERE post_id = $1 AND user_id = $2`, [postId, userId]);
+        await client.query(`UPDATE posts SET hates_count = hates_count - 1 WHERE id = $1`, [postId]);
+        hated = false;
+      } else {
+        await client.query(`INSERT INTO hates (post_id, user_id) VALUES ($1, $2)`, [postId, userId]);
+        await client.query(`UPDATE posts SET hates_count = hates_count + 1 WHERE id = $1`, [postId]);
+        hated = true;
+      }
+
+      const countQuery = `SELECT hates_count FROM posts WHERE id = $1`;
+      const countResult = await client.query(countQuery, [postId]);
+
+      await client.query('COMMIT');
+
+      return {
+        hated,
+        hatesCount: countResult.rows[0].hates_count
+      };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+
   }
 
   /**
@@ -183,6 +222,7 @@ export class PostModel {
       content: row.content,
       imageUrl: row.image_url,
       likesCount: row.likes_count,
+      hatesCount: row.hates_count,
       commentsCount: row.comments_count,
       createdAt: row.created_at,
       updatedAt: row.updated_at
@@ -202,6 +242,7 @@ export class PostModel {
       content: row.content,
       imageUrl: row.image_url,
       likesCount: row.likes_count,
+      hatesCount: row.hates_count,
       commentsCount: row.comments_count,
       createdAt: row.created_at,
       updatedAt: row.updated_at,

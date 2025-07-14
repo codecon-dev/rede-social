@@ -43,33 +43,8 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleLike = async (postId: number) => {
-    try {
-      const response = await apiClient.toggleLike(postId);
-      setPosts(posts.map(post => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            isLiked: response.liked,
-            likesCount: response.liked ? post.likesCount + 1 : post.likesCount - 1
-          };
-        }
-        return post;
-      }));
-    } catch (err) {
-      console.error('Like error:', err);
-    }
-  };
-
-  const handleDelete = async (postId: number) => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
-      try {
-        await apiClient.deletePost(postId);
-        await loadTimeline();
-      } catch (err) {
-        console.error('Delete error:', err);
-      }
-    }
+  const handlePostDeleted = async () => {
+    await loadTimeline();
   };
 
   if (loading) {
@@ -104,8 +79,7 @@ const HomePage: React.FC = () => {
               <PostCard
                 key={post.id}
                 post={post}
-                onLike={handleLike}
-                onDelete={handleDelete}
+                onPostDeleted={handlePostDeleted}
                 currentUserId={user?.id}
               />
             ))
