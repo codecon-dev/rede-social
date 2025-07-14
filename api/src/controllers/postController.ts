@@ -213,9 +213,9 @@ export const toggleHate = async (req: AuthRequest, res: Response): Promise<void>
     const result = await PostModel.toggleHate(postId, userId);
 
     res.json({
-      message: result.hated ? 'Post hated' : 'Post liked',
-      liked: result.hated,
-      likesCount: result.hatesCount
+      message: result.hated ? 'Post hated' : 'Post not hated',
+      hated: result.hated,
+      hatesCount: result.hatesCount
     });
   } catch (error) {
     console.error('Toggle like error:', error);

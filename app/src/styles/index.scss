@@ -10,7 +10,6 @@ label {
 	font-weight: 600;
 }
 
-// Not Found Page styles
 .not-found {
 	display: flex;
 	justify-content: center;
@@ -34,6 +33,19 @@ label {
 				color: var(--gray-11);
 				line-height: 1.6;
 			}
+		}
+	}
+}
+
+.landing-page {
+	padding: 1rem 2rem;
+
+	form {
+		max-width: 600px;
+		margin: 0 auto;
+
+		button {
+			margin-top: 1rem;
 		}
 	}
 }

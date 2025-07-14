@@ -1,12 +1,13 @@
 import { Router } from 'express';
-import { 
-  createPost, 
-  getPost, 
-  updatePost, 
-  deletePost, 
+import {
+  createPost,
+  getPost,
+  updatePost,
+  deletePost,
   toggleLike,
   createPostValidation,
-  updatePostValidation 
+  updatePostValidation,
+  toggleHate
 } from '../controllers/postController';
 import { authenticateToken } from '../middleware/auth';
 
@@ -17,5 +18,6 @@ router.get('/:id', getPost);
 router.put('/:id', authenticateToken, updatePostValidation, updatePost);
 router.delete('/:id', authenticateToken, deletePost);
 router.post('/:id/like', authenticateToken, toggleLike);
+router.post('/:id/hate', authenticateToken, toggleHate);
 
 export { router as postRoutes };
