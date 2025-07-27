@@ -1,13 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Avatar, Button, Card, DropdownMenu, Flex } from '@radix-ui/themes';
+import { Avatar, Button, Card, DropdownMenu, Flex, Text, Tooltip } from '@radix-ui/themes';
 import { LuArrowLeft, LuUserPlus, LuUserMinus } from 'react-icons/lu';
-import type { Post, User } from '../types';
+import type { Post, User, PatologicalVoteStats } from '../types';
 import PostCard from '../components/PostCard';
 import { apiClient } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useMockFollows } from '../contexts/MockFollowsContext';
 import { useFollows } from '../contexts/FollowsContext';
+import patocinado from '../assets/patocinado.png';
+import patodavida from '../assets/patodavida.png';
+import patonimo from '../assets/patonimo.png';
 
 const mockUsers: Record<string, User> = {
 	vtnorton: {
@@ -68,6 +71,9 @@ const UserPage: React.FC = () => {
 	const [isFollowing, setIsFollowing] = useState<boolean>(false);
 	const [followLoading, setFollowLoading] = useState<boolean>(false);
 	const [isMockUser, setIsMockUser] = useState<boolean>(false);
+	const [patologicalStats, setPatologicalStats] = useState<PatologicalVoteStats | null>(null);
+	const [votingLoading, setVotingLoading] = useState<boolean>(false);
+	const [voteFeedback, setVoteFeedback] = useState<string>('');
 	const { isMockFollowing, addMockFollow, removeMockFollow } = useMockFollows();
 	const { refreshDbFollowsCount } = useFollows();
 
@@ -153,6 +159,123 @@ const UserPage: React.FC = () => {
 		await loadTimeline();
 	};
 
+	const loadPatologicalStats = useCallback(async () => {
+		if (!user) return;
+
+		try {
+			const stats = await apiClient.getPatologicalVoteStats(user.id);
+			setPatologicalStats(stats);
+		} catch (error) {
+			console.error('Error loading patological stats:', error);
+			const mockStats: PatologicalVoteStats = {
+				patocinado: 15,
+				patodavida: 10,
+				patonimo: 8,
+				total: 33,
+				percentages: {
+					patocinado: 45.5,
+					patodavida: 30.3,
+					patonimo: 24.2
+				},
+				userVote: undefined
+			};
+
+			const localVote = getLocalVotes(user.id);
+			if (localVote && localVote.userVote) {
+				mockStats.userVote = localVote.userVote;
+			}
+			
+			setPatologicalStats(mockStats);
+		}
+	}, [user]);
+
+	const getLocalVotes = (targetUserId: number) => {
+		try {
+			const localVotes = localStorage.getItem(`patological_votes_${targetUserId}`);
+			return localVotes ? JSON.parse(localVotes) : null;
+		} catch (error) {
+			console.error('Error reading local votes:', error);
+			return null;
+		}
+	};
+
+	const saveLocalVotes = (targetUserId: number, votes: any) => {
+		try {
+			localStorage.setItem(`patological_votes_${targetUserId}`, JSON.stringify(votes));
+		} catch (error) {
+			console.error('Error saving local votes:', error);
+		}
+	};
+
+	const handlePatologicalVote = async (voteType: 'patocinado' | 'patodavida' | 'patonimo') => {
+		if (!currentUser || !user || currentUser.id === user.id) return;
+
+		setVotingLoading(true);
+		setVoteFeedback('');
+		
+		try {
+			await apiClient.votePatological(user.id, voteType);
+			await loadPatologicalStats();
+			setVoteFeedback('Voto compatado!');
+		} catch (error) {
+			console.error('Error voting patological:', error);
+			if (patologicalStats) {
+				const newStats = { ...patologicalStats };
+
+				if (newStats.userVote && newStats.userVote !== voteType) {
+					newStats[newStats.userVote as keyof typeof newStats]--;
+					newStats.total--;
+				}
+
+				if (!newStats.userVote || newStats.userVote !== voteType) {
+					newStats[voteType as keyof typeof newStats]++;
+					newStats.total++;
+				}
+				
+				if (newStats.total > 0) {
+					newStats.percentages.patocinado = Math.round((newStats.patocinado / newStats.total) * 1000) / 10;
+					newStats.percentages.patodavida = Math.round((newStats.patodavida / newStats.total) * 1000) / 10;
+					newStats.percentages.patonimo = Math.round((newStats.patonimo / newStats.total) * 1000) / 10;
+				}
+
+				newStats.userVote = voteType;
+
+				saveLocalVotes(user.id, {
+					userVote: voteType,
+					timestamp: Date.now()
+				});
+				
+				setPatologicalStats(newStats);
+				setVoteFeedback('Voto compatado!');
+			} else {
+				// Se não há stats, cria um novo com o voto
+				const initialStats: PatologicalVoteStats = {
+					patocinado: voteType === 'patocinado' ? 1 : 0,
+					patodavida: voteType === 'patodavida' ? 1 : 0,
+					patonimo: voteType === 'patonimo' ? 1 : 0,
+					total: 1,
+					percentages: {
+						patocinado: voteType === 'patocinado' ? 100.0 : 0.0,
+						patodavida: voteType === 'patodavida' ? 100.0 : 0.0,
+						patonimo: voteType === 'patonimo' ? 100.0 : 0.0
+					},
+					userVote: voteType
+				};
+
+				saveLocalVotes(user.id, {
+					userVote: voteType,
+					timestamp: Date.now()
+				});
+				
+				setPatologicalStats(initialStats);
+				setVoteFeedback('Primeiro voto compatado!');
+			}
+		} finally {
+			setVotingLoading(false);
+			setTimeout(() => setVoteFeedback(''), 3000);
+		}
+	};
+
 	useEffect(() => {
 		loadUser();
 	}, [loadUser]);
@@ -161,8 +284,9 @@ const UserPage: React.FC = () => {
 		if (user) {
 			loadTimeline();
 			loadFollowStatus();
+			loadPatologicalStats();
 		}
-	}, [user, loadTimeline, loadFollowStatus]);
+	}, [user, loadTimeline, loadFollowStatus, loadPatologicalStats]);
 
 	if (loading) {
 		return (
@@ -244,6 +368,76 @@ const UserPage: React.FC = () => {
 									<i>{user?.bio || 'Ainda não escreveu nada sobre si.'}</i>
 								</p>
 							</div>
+						</div>
+
+						<div className="avaliacao-patologica">
+							<h4 className="patological-title">Avaliação Pato-lógica</h4>
+							{voteFeedback && (
+								<Text size="1" color="green" style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+									{voteFeedback}
+								</Text>
+							)}
+							<Flex direction="column" gap="3">
+								<Flex align="center" gap="3">
+									<Tooltip content="Patocinado - Vive aparecendo por aí. Deve estar em todas com contrato assinado.">
+										<img 
+											src={patocinado}
+											alt="Patocinado - Pato com óculos e celular"
+											className={`avaliacao-img ${patologicalStats?.userVote === 'patocinado' ? 'voted' : ''}`}
+											onClick={() => handlePatologicalVote('patocinado')}
+											style={{ cursor: votingLoading ? 'not-allowed' : 'pointer' }}
+										/>
+									</Tooltip>
+									<Tooltip content="Patocinado - Vive aparecendo por aí. Deve estar em todas com contrato assinado.">
+										<Flex direction="column" gap="1" style={{ cursor: 'pointer' }}>
+											<Text size="2" weight="bold">Patocinado</Text>
+											<Text size="1" color="gray">
+												{patologicalStats ? `${patologicalStats.percentages.patocinado.toFixed(1)}%` : '0%'}
+											</Text>
+										</Flex>
+									</Tooltip>
+								</Flex>
+
+								<Flex align="center" gap="3">
+									<Tooltip content="Patoda vida - Parceiro de sempre. Topa tudo, até os planos duvidosos.">
+										<img 
+											src={patodavida}
+											alt="Patodavida - Pato abraçando"
+											className={`avaliacao-img ${patologicalStats?.userVote === 'patodavida' ? 'voted' : ''}`}
+											onClick={() => handlePatologicalVote('patodavida')}
+											style={{ cursor: votingLoading ? 'not-allowed' : 'pointer' }}
+										/>
+									</Tooltip>
+									<Tooltip content="Patoda vida - Parceiro de sempre. Topa tudo, até os planos duvidosos.">
+										<Flex direction="column" gap="1" style={{ cursor: 'pointer' }}>
+											<Text size="2" weight="bold">Patoda vida</Text>
+											<Text size="1" color="gray">
+												{patologicalStats ? `${patologicalStats.percentages.patodavida.toFixed(1)}%` : '0%'}
+											</Text>
+										</Flex>
+									</Tooltip>
+								</Flex>
+
+								<Flex align="center" gap="3">
+									<Tooltip content="Patônimo - Acho que já vi antes por aí… ou será que não?">
+										<img 
+											src={patonimo}
+											alt="Patonimo - Pato com lupa"
+											className={`avaliacao-img ${patologicalStats?.userVote === 'patonimo' ? 'voted' : ''}`}
+											onClick={() => handlePatologicalVote('patonimo')}
+											style={{ cursor: votingLoading ? 'not-allowed' : 'pointer' }}
+										/>
+									</Tooltip>
+									<Tooltip content="Patônimo - Acho que já vi antes por aí… ou será que não?">
+										<Flex direction="column" gap="1" style={{ cursor: 'pointer' }}>
+											<Text size="2" weight="bold">Patônimo</Text>
+											<Text size="1" color="gray">
+												{patologicalStats ? `${patologicalStats.percentages.patonimo.toFixed(1)}%` : '0%'}
+											</Text>
+										</Flex>
+									</Tooltip>
+								</Flex>
+							</Flex>
 						</div>
 					</Flex>
 					<Flex gap={'2'} direction={'column'}>

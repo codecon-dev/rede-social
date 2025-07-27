@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../services/api';
-import { Avatar, Button, Card, Flex, TextArea, TextField } from '@radix-ui/themes';
+import { Avatar, Button, Card, Flex, TextArea, TextField, Text, Tooltip } from '@radix-ui/themes';
 import { LuArrowLeft, LuPencil } from 'react-icons/lu';
+import type { PatologicalVoteStats } from '../types';
+import patocinado from '../assets/patocinado.png';
+import patodavida from '../assets/patodavida.png';
+import patonimo from '../assets/patonimo.png';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +22,7 @@ const ProfilePage: React.FC = () => {
     lastName: user?.lastName || '',
     bio: user?.bio || '',
   });
+  const [patologicalStats, setPatologicalStats] = useState<PatologicalVoteStats | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -55,6 +60,34 @@ const ProfilePage: React.FC = () => {
     setError('');
     setSuccess('');
   };
+
+  const loadPatologicalStats = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const stats = await apiClient.getPatologicalVoteStats(user.id);
+      setPatologicalStats(stats);
+    } catch (error) {
+      console.error('Error loading patological stats:', error);
+      const mockStats: PatologicalVoteStats = {
+        patocinado: 15,
+        patodavida: 10,
+        patonimo: 8,
+        total: 33,
+        percentages: {
+          patocinado: 45.5,
+          patodavida: 30.3,
+          patonimo: 24.2
+        },
+        userVote: undefined
+      };
+      setPatologicalStats(mockStats);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadPatologicalStats();
+  }, [loadPatologicalStats]);
 
   return (
     <section className="profile">
@@ -144,6 +177,60 @@ const ProfilePage: React.FC = () => {
                 <p>
                   <i>{user?.bio || 'Ainda não escrevi nada sobre mim.'}</i>
                 </p>
+              </div>
+            )}
+
+            {!editing && (
+              <div className="profile-patological-section">
+                <Flex gap="3" justify="center">
+                  {/* Patocinado */}
+                  <Tooltip content="Vive aparecendo por aí. Deve estar em todas com contrato assinado.">
+                    <Flex direction="column" align="center" gap="1" style={{ cursor: 'pointer' }}>
+                      <Text size="1" weight="bold">Patocinado</Text>
+                      <img 
+                        src={patocinado}
+                        alt="Patocinado - Pato com celular"
+                        className="avaliacao-img"
+                        style={{ cursor: 'default' }}
+                      />
+                      <Text size="1" color="gray">
+                        {patologicalStats ? `${patologicalStats.percentages.patocinado.toFixed(1)}%` : '0%'}
+                      </Text>
+                    </Flex>
+                  </Tooltip>
+
+                  {/* Patoda vida */}
+                  <Tooltip content="Parceiro de sempre. Topa tudo, até os planos duvidosos.">
+                    <Flex direction="column" align="center" gap="1" style={{ cursor: 'pointer' }}>
+                      <Text size="1" weight="bold">Patoda vida</Text>
+                      <img 
+                        src={patodavida}
+                        alt="Patodavida - Pato abraçado"
+                        className="avaliacao-img"
+                        style={{ cursor: 'default' }}
+                      />
+                      <Text size="1" color="gray">
+                        {patologicalStats ? `${patologicalStats.percentages.patodavida.toFixed(1)}%` : '0%'}
+                      </Text>
+                    </Flex>
+                  </Tooltip>
+
+                  {/* Patônimo */}
+                  <Tooltip content="Acho que já vi antes por aí… ou será que não?">
+                    <Flex direction="column" align="center" gap="1" style={{ cursor: 'pointer' }}>
+                      <Text size="1" weight="bold">Patônimo</Text>
+                      <img 
+                        src={patonimo}
+                        alt="Patonimo - Pato com lupa"
+                        className="avaliacao-img"
+                        style={{ cursor: 'default' }}
+                      />
+                      <Text size="1" color="gray">
+                        {patologicalStats ? `${patologicalStats.percentages.patonimo.toFixed(1)}%` : '0%'}
+                      </Text>
+                    </Flex>
+                  </Tooltip>
+                </Flex>
               </div>
             )}
           </div>

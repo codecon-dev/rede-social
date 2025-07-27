@@ -6,7 +6,8 @@ import type {
   Post,
   UpdateProfileRequest,
   CreatePostRequest,
-  PostPaged
+  PostPaged,
+  PatologicalVoteStats
 } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -129,6 +130,17 @@ class ApiClient {
 
   async getPanelinhaMembers(): Promise<{members: User[]; pagination: { page: number; limit: number; hasMore: boolean}}> {
     return this.request<{ members: User[]; pagination: {page: number; limit: number; hasMore: boolean} }>('/users/panelinha/members');
+  }
+
+  async votePatological(targetUserId: number, voteType: 'patocinado' | 'patodavida' | 'patonimo'): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/users/${targetUserId}/patological-vote`, {
+      method: 'POST',
+      body: JSON.stringify({ voteType }),
+    });
+  }
+
+  async getPatologicalVoteStats(targetUserId: number): Promise<PatologicalVoteStats> {
+    return this.request<PatologicalVoteStats>(`/users/${targetUserId}/patological-stats`);
   }
 }
 

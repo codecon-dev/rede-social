@@ -68,3 +68,24 @@ export interface AuthResponse {
   user: User;
   token: string;
 }
+
+export interface PatologicalVote {
+  id: number;
+  voterId: number;
+  targetUserId: number;
+  voteType: 'patocinado' | 'patodavida' | 'patonimo';
+  createdAt: string;
+}
+
+export interface PatologicalVoteStats {
+  patocinado: number;
+  patodavida: number;
+  patonimo: number;
+  total: number;
+  percentages: {
+    patocinado: number;
+    patodavida: number;
+    patonimo: number;
+  };
+  userVote?: string;
+}

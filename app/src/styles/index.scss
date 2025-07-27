@@ -40,6 +40,93 @@ label {
 			cursor: not-allowed;
 		}
 	}
+
+	.avaliacao-patologica {
+		margin-bottom: 1rem;
+		padding: 1.5rem;
+		background: var(--gray-1);
+		border-radius: 12px;
+		border: 1px solid var(--gray-6);
+		min-width: 250px;
+
+		// Para UserPage (canto direito)
+		.profile-card & {
+			align-self: flex-start;
+			margin-left: auto;
+		}
+
+		.avaliacao-img {
+			width: 50px;
+			height: 50px;
+			border-radius: 8px;
+			object-fit: contain;
+			background: transparent;
+			transition: all 0.2s ease;
+			cursor: pointer;
+			padding: 3px;
+
+			&:hover {
+				transform: scale(1.05);
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			}
+
+			&.voted {
+				border: 2px solid var(--green-9);
+				background: var(--green-2);
+				box-shadow: 0 0 0 2px var(--green-6);
+			}
+		}
+
+		h4 {
+			margin-bottom: 1rem;
+			color: var(--gray-12);
+			font-size: 1rem;
+			font-weight: 600;
+		}
+
+		.patological-title {
+			color: var(--green-11) !important;
+			font-weight: 700;
+			text-align: center;
+		}
+	}
+
+	// Seção específica para o perfil do usuário logado
+	.profile-patological-section {
+		margin-top: 0.75rem;
+		padding: 0.5rem;
+		max-width: fit-content;
+
+		.avaliacao-img {
+			width: 30px;
+			height: 30px;
+			border-radius: 6px;
+			object-fit: contain;
+			background: transparent;
+			transition: all 0.2s ease;
+			padding: 2px;
+
+			&:hover {
+				transform: scale(1.05);
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			}
+		}
+	}
+
+
+
+	// Estilos para os tooltips da avaliação patológica
+	[data-radix-tooltip-content] {
+		max-width: 250px;
+		font-size: 0.875rem;
+		line-height: 1.4;
+		text-align: center;
+		padding: 0.5rem 0.75rem;
+		background: var(--gray-12);
+		color: var(--gray-1);
+		border-radius: 6px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
 }
 
 .panelinha {
