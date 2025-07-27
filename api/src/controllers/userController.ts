@@ -183,3 +183,44 @@ export const getTimeline = async (req: AuthRequest, res: Response): Promise<void
     res.status(500).json({ error: 'Failed to get timeline' });
   }
 };
+
+/**
+ * Handles the retrieval of the user's timeline.
+ * Returns posts from users that the authenticated user follows, with pagination.
+ *
+ * @param {Request} req - The request object containing user data.
+ * @param {Response} res - The response object to send the result.
+ */
+export const getProfileByUsername = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      res.status(400).json({ error: 'Username is required' });
+      return;
+    }
+
+    const user = await UserModel.findByUsername(username);
+    if (!user) {
+      res.status(404).json({ error: 'Username not found' });
+      return;
+    }
+
+    res.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      bio: user.bio,
+      avatarUrl: user.avatarUrl,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    });
+
+  } catch (error) {
+    console.error('Get profile by username error:', error);
+    res.status(500).json({ error: 'Failed to get user profile' });
+  }
+};

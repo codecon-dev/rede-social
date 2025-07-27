@@ -40,16 +40,47 @@ const mockUsers: Record<string, User> = {
 		createdAt: '',
 		updatedAt: ''
 	},
+	jeniblo: {
+		id: 4,
+		username: 'jeniblo',
+		firstName: 'Jeni',
+		lastName: 'Bittencourt',
+		bio: 'Dev Javeira apaixonada por gatos, Pokémon e TCG',
+		email: 'jeni@coding.com',
+		isVerified: false,
+		createdAt: '',
+		updatedAt: ''
+	},
 };
 
 const UserPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { username } = useParams<{ username: string }>();
 	const [posts, setPosts] = useState<Post[]>([]);
+	const [user, setUser] = useState<User | null>(null);
+	const [loading, setLoading] = useState(true);
 	const [selectedRelationship, setSelectedRelationship] = useState<string>('');
 	const [selectedThought, setSelectedThought] = useState<string>('');
 
-	const user = username ? mockUsers[username.toLowerCase()] : null;
+	const loadUser = useCallback(async () => {
+		if (!username) return;
+
+		setLoading(true);
+		try {
+			const dbUser = await apiClient.getUserByUsername(username);
+			setUser(dbUser);
+		} catch (error) {
+			console.error('Usuário não encontrado no banco, tentando os dados mockados...', error);
+			const mockUser = mockUsers[username.toLowerCase()];
+			if (mockUser) {
+				setUser(mockUser);
+			} else {
+				setUser(null);
+			}
+		} finally {
+			setLoading(false);
+		}
+	}, [username]);
 
 	const loadTimeline = useCallback(async () => {
 		try {
@@ -67,8 +98,26 @@ const UserPage: React.FC = () => {
 	};
 
 	useEffect(() => {
-		loadTimeline();
-	}, [loadTimeline]);
+		loadUser();
+	}, [loadUser]);
+
+	useEffect(() => {
+		if (user) {
+			loadTimeline();
+		}
+	}, [user, loadTimeline]);
+
+	if (loading) {
+		return (
+			<section className="profile">
+				<Card size={'4'} className="profile-card">
+					<Flex direction={'column'} align={'center'} gap={'4'}>
+						<h1>Carregando...</h1>
+					</Flex>
+				</Card>
+			</section>
+		);
+	}
 
 	if (!user) {
 		return (

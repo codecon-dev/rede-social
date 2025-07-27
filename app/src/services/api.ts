@@ -68,6 +68,10 @@ class ApiClient {
     return this.request<User>(`/users/${userId}`);
   }
 
+  async getUserByUsername(username: string): Promise<User> {
+    return this.request<User>(`/users/username/${username}`);
+  }
+
   async updateProfile(profileData: UpdateProfileRequest): Promise<User> {
     return this.request<User>('/users/profile', {
       method: 'PUT',
