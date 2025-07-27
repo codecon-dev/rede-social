@@ -155,6 +155,112 @@ export const getUserPosts = async (req: Request, res: Response): Promise<void> =
 };
 
 /**
+ * Handles following a user.
+ * Requires authentication and validates that the user is not trying to follow themselves.
+ *
+ * @param {Request} req - The request object containing the user ID in the parameters.
+ * @param {Response} res - The response object to send the result.
+ */
+export const followUser = async (req: any, res: Response): Promise<void> => {
+  try {
+    const followerId = req.user.id;
+    const { id } = req.params;
+    const followingId = parseInt(id);
+
+    if (isNaN(followingId)) {
+      res.status(400).json({ error: 'Invalid user id' });
+      return;
+    }
+
+    if (followerId === followingId) {
+      res.status(400).json({ error: 'Cannot follow yourself' });
+      return;
+    }
+
+    const targetUser = await UserModel.findById(followerId);
+    if (!targetUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const isFollowing = await UserModel.followUser(followerId, followingId);
+
+    res.json({
+      message: isFollowing ? 'Successfully followed user' : 'Already following user',
+      isFollowing: true
+    });
+  } catch (error) {
+    console.error('Follow user error:', error);
+    res.status(500).json({ error: 'Failed to follow user' });
+  }
+};
+
+/**
+ * Handles unfollowing a user.
+ * Requires authentication and validates that the user is not trying to follow themselves.
+ *
+ * @param {Request} req - The request object containing the user ID in the parameters.
+ * @param {Response} res - The response object to send the result.
+ */
+export const unfollowUser = async (req: any, res: Response): Promise<void> => {
+  try {
+    const followerId = req.user.id;
+    const { id } = req.params;
+    const followingId = parseInt(id);
+
+    if (isNaN(followingId)) {
+      res.status(400).json({ error: 'Invalid user id' });
+      return;
+    }
+
+    const targetUser = await UserModel.findById(followingId);
+    if (!targetUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const wasFollowing = await UserModel.unfollowUser(followerId, followingId);
+
+    res.json({
+      message: wasFollowing ? 'Successfully unfollowed user' : 'Not following user',
+      isFollowing: false
+    });
+  } catch (error) {
+    console.error('Unfollow user error:', error);
+    res.status(500).json({ error: 'Failed to unfollow user' });
+  }
+}
+
+/**
+ * Checks if the authenticated user is following another user.
+ * Requires authentication.
+ *
+ * @param {Request} req - The request object containing the user ID in the parameters.
+ * @param {Response} res - The response object to send the result.
+ */
+export const checkFollowStatus = async (req: any, res: Response): Promise<void> => {
+  try {
+    const followerId = req.user.id;
+    const { id } = req.params;
+    const followingId = parseInt(id);
+
+    if (isNaN(followingId)) {
+      res.status(400).json({ error: 'Invalid user id' });
+      return;
+    }
+
+    const isFollowing = await UserModel.isFollowing(followerId, followingId);
+
+    res.json({
+      isFollowing
+    });
+  } catch (error) {
+    console.error('Check follow status error:', error);
+    res.status(500).json({ error: 'Failed to check follow status' });
+  }
+}
+
+/**
  * Handles the retrieval of the user's timeline.
  * Returns posts from users that the authenticated user follows, with pagination.
  *

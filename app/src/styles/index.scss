@@ -10,6 +10,38 @@ label {
 	font-weight: 600;
 }
 
+.profile {
+	.follow-button {
+		margin-top: 1rem;
+		transition: all 0.2s ease;
+
+		&:hover {
+			transform: translateY(-1px);
+		}
+
+		&:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+	}
+
+	button[data-follow-button] {
+		transition: all 0.2s ease;
+		white-space: nowrap;
+		align-self: flex-start;
+		margin-top: 0.25rem;
+
+		&:hover {
+			transform: translateY(-1px);
+		}
+
+		&:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+	}
+}
+
 .not-found {
 	display: flex;
 	justify-content: center;

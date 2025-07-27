@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Avatar, Button, Card, DropdownMenu, Flex } from '@radix-ui/themes';
-import { LuArrowLeft } from 'react-icons/lu';
+import { LuArrowLeft, LuUserPlus, LuUserMinus } from 'react-icons/lu';
 import type { Post, User } from '../types';
 import PostCard from '../components/PostCard';
 import { apiClient } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const mockUsers: Record<string, User> = {
 	vtnorton: {
@@ -56,11 +57,14 @@ const mockUsers: Record<string, User> = {
 const UserPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { username } = useParams<{ username: string }>();
+	const { user: currentUser } = useAuth();
 	const [posts, setPosts] = useState<Post[]>([]);
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [selectedRelationship, setSelectedRelationship] = useState<string>('');
 	const [selectedThought, setSelectedThought] = useState<string>('');
+	const [isFollowing, setIsFollowing] = useState<boolean>(false);
+	const [followLoading, setFollowLoading] = useState<boolean>(false);
 
 	const loadUser = useCallback(async () => {
 		if (!username) return;
@@ -81,6 +85,36 @@ const UserPage: React.FC = () => {
 			setLoading(false);
 		}
 	}, [username]);
+
+	const loadFollowStatus = useCallback(async () => {
+		if (!currentUser || !user || currentUser.id === user.id) return;
+
+		try {
+			const status = await apiClient.checkFollowStatus(user.id);
+			setIsFollowing(status.isFollowing);
+		} catch (error) {
+			console.error('Error loading follow status', error);
+		}
+	}, [currentUser, user]);
+
+	const handleFollowToggle = async () => {
+		if (!currentUser || !user || currentUser.id === user.id) return;
+
+		setFollowLoading(true);
+		try {
+			if (isFollowing) {
+				await apiClient.unfollowUser(user.id);
+				setIsFollowing(false);
+			} else {
+				await apiClient.followUser(user.id);
+				setIsFollowing(true);
+			}
+		} catch (error) {
+			console.error('Error toggling follow', error);
+		} finally {
+			setFollowLoading(false);
+		}
+	};
 
 	const loadTimeline = useCallback(async () => {
 		try {
@@ -104,8 +138,9 @@ const UserPage: React.FC = () => {
 	useEffect(() => {
 		if (user) {
 			loadTimeline();
+			loadFollowStatus();
 		}
-	}, [user, loadTimeline]);
+	}, [user, loadTimeline, loadFollowStatus]);
 
 	if (loading) {
 		return (
@@ -135,6 +170,8 @@ const UserPage: React.FC = () => {
 		);
 	}
 
+	const isOwnProfile = currentUser?.id === user.id;
+
 	return (
 		<>
 			<section className="profile">
@@ -146,21 +183,39 @@ const UserPage: React.FC = () => {
 							src={user?.avatarUrl || undefined}
 							fallback={user?.username?.substring(0, 1)?.toUpperCase() || 'U'}
 						/>
-						<div>
-							{user?.firstName ? (
-								<>
-									<h1>{user?.firstName || user?.lastName
-										? `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
-										: 'Not provided'
-									}</h1>
-									<h2><i>@{user?.username}</i></h2>
-								</>
-							) : (
-								<h1>@{user?.username}</h1>
-							)}
-
-
-
+						<div style={{flex: 1}}>
+							<Flex gap={'4'} align={'baseline'} style={{marginBottom: '1rem'}} className="name-button-container">
+							<div className="name-container">
+								{user?.firstName ? (
+									<>
+										<h1>{user?.firstName || user?.lastName
+											? `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
+											: 'Not provided'
+										}</h1>
+										<h2><i>@{user?.username}</i></h2>
+									</>
+								) : (
+									<h1>@{user?.username}</h1>
+								)}
+							</div>
+								{currentUser && !isOwnProfile && (
+									<Button
+										variant={isFollowing ? "solid" : "outline"}
+										onClick={handleFollowToggle}
+										disabled={followLoading}
+										size="2"
+										data-follow-button
+									>
+										{isFollowing ? <LuUserMinus /> : <LuUserPlus />}
+										{followLoading
+											? 'Carregando...'
+											: isFollowing
+												? 'Remover da panelinha'
+												: 'Adicionar à minha panelinha'
+										}
+									</Button>
+								)}
+							</Flex>
 							<div className='bio'>
 								<h4>Quem sou eu na fila do pão?</h4>
 								<p>

@@ -169,4 +169,102 @@ export class UserModel {
       updatedAt: row.updated_at
     };
   }
+
+  /**
+   * Follows a user
+   *
+   * @param followerId - The ID of the user who is following.
+   * @param followingId - The ID of the user being followed.
+   * @returns True if successfully followed, false if alread following.
+   */
+
+  static async followUser(followerId: number, followingId: number):  Promise<boolean> {
+    if (followerId === followingId) {
+      throw new Error('Cannot follow yourself');
+    }
+
+    const query = `
+    INSERT INTO followers (follower_id, following_id)
+    VALUES ($1, $2)
+    ON CONFLICT (follower_id, following_id) DO NOTHING
+    RETURNING id
+    `;
+
+    const result = await pool.query(query, [followerId, followingId]);
+    return result.rows.length > 0;
+  }
+
+  /**
+   * Unfollows a user
+   *
+   * @param followerId - The ID of the user who is following.
+   * @param followingId - The ID of the user being followed.
+   * @returns True if successfully followed, false if alread following.
+   */
+
+  static async unfollowUser(followerId: number, followingId: number):  Promise<boolean> {
+
+    const query = `
+    DELETE FROM followers
+    WHERE follower_id = $1 AND following_id = $2
+    `;
+
+    const result = await pool.query(query, [followerId, followingId]);
+    return (result.rowCount || 0) > 0;
+  }
+
+  /**
+   * Verify following
+   *
+   * @param followerId - The ID of the user who is following.
+   * @param followingId - The ID of the user being followed.
+   * @returns True if following, false otherwise
+   */
+
+  static async isFollowing(followerId: number, followingId: number):  Promise<boolean> {
+
+    const query = `
+    SELECT id FROM followers
+    WHERE follower_id = $1 AND following_id = $2
+    `;
+
+    const result = await pool.query(query, [followerId, followingId]);
+    return result.rows.length > 0;
+  }
+
+  /**
+   * Gets the number of followers for a user
+   *
+   * @param userId - The ID of the user.
+   * @returns The number of followers.
+   */
+
+  static async getFollowersCount(userId: number):  Promise<number> {
+
+    const query = `
+    SELECT COUNT(*) as count FROM followers
+    WHERE following_id =$1
+    `;
+
+    const result = await pool.query(query, [userId]);
+    return parseInt(result.rows[0].count);
+  }
+
+  /**
+   * Gets the number of users a user is following
+   *
+   * @param userId - The ID of the user.
+   * @returns The number of users being followed.
+   */
+
+  static async getFollowingCount(userId: number):  Promise<number> {
+
+    const query = `
+    SELECT COUNT(*) as count FROM followers
+    WHERE follower_id =$1
+    `;
+
+    const result = await pool.query(query, [userId]);
+    return parseInt(result.rows[0].count);
+  }
 }

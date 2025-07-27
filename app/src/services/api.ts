@@ -106,6 +106,22 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  async followUser(userId: number): Promise<{message: string; isFollowing: boolean}> {
+    return this.request<{ message: string; isFollowing: boolean }>(`/users/${userId}/follow`, {
+      method: 'POST',
+    });
+  }
+
+  async unfollowUser(userId: number): Promise<{message: string; isFollowing: boolean}> {
+    return this.request<{ message: string; isFollowing: boolean }>(`/users/${userId}/follow`, {
+      method: 'DELETE',
+    });
+  }
+
+  async checkFollowStatus(userId: number): Promise<{isFollowing: boolean}> {
+    return this.request<{ isFollowing: boolean }>(`/users/${userId}/follow-status`);
+  }
 }
 
 export const apiClient = new ApiClient();
