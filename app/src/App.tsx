@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import UserPage from './pages/UserPage';
+import PanelinhaPage from './pages/PanelinhaPage';
 import NotFoundPage from './pages/NotFoundPage';
 import './styles/index.scss';
 import Navbar from './components/Navbar';
@@ -32,6 +33,7 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/user/:username" element={<UserPage />} />
+          <Route path="/panelinha" element={<PanelinhaPage />} />
           <Route path="/404" element={<NotFoundPage />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>

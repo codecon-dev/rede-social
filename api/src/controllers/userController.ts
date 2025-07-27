@@ -330,3 +330,54 @@ export const getProfileByUsername = async (req: Request, res: Response): Promise
     res.status(500).json({ error: 'Failed to get user profile' });
   }
 };
+
+/**
+ * Gets the list of users the authenticated user is following (panelinha members).
+ * Requires authentication.
+ *
+ * @param {Request} req - The request object containing user data from the token.
+ * @param {Response} res - The response object to send the members list.
+ */
+export const getPanelinhaMembers = async (req: any, res: Response): Promise<void> => {
+  try {
+    const userId = req.user.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+    const offset = (page - 1) * limit;
+
+    const members = await UserModel.getPanelinhaMembers(userId, limit, offset);
+    
+    res.json({
+      members,
+      pagination: {
+        page,
+        limit,
+        hasMore: members.length === limit
+      }
+    });
+  } catch (error) {
+    console.error('Get panelinha members error:', error);
+    res.status(500).json({ error: 'Failed to get panelinha members' });
+  }
+};
+
+/**
+ * Gets the number of users the authenticated user is following.
+ * Requires authentication.
+ *
+ * @param {Request} req - The request object containing user data from the token.
+ * @param {Response} res - The response object to send the members list.
+ */
+export const getPanelinhaMembersCount = async (req: any, res: Response): Promise<void> => {
+  try {
+    const userId = req.user.id;
+    const count = await UserModel.getFollowingCount(userId);
+
+    res.json({
+      count
+    })
+  } catch (error) {
+    console.error('Get panelinha members count error:', error);
+    res.status(500).json({ error: 'Failed to get panelinha members count' });
+  }
+};

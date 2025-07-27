@@ -122,6 +122,14 @@ class ApiClient {
   async checkFollowStatus(userId: number): Promise<{isFollowing: boolean}> {
     return this.request<{ isFollowing: boolean }>(`/users/${userId}/follow-status`);
   }
+
+  async getPanelinhaMembersCount(): Promise<{count: number}> {
+    return this.request<{ count: number}>('/users/panelinha/count');
+  }
+
+  async getPanelinhaMembers(): Promise<{members: User[]; pagination: { page: number; limit: number; hasMore: boolean}}> {
+    return this.request<{ members: User[]; pagination: {page: number; limit: number; hasMore: boolean} }>('/users/panelinha/members');
+  }
 }
 
 export const apiClient = new ApiClient();

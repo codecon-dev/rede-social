@@ -11,6 +11,21 @@ header {
 			margin-left: auto;
 			display: flex;
 			gap: .5rem;
+
+			.members-count {
+				background: var(--grass-9);
+				color: white;
+				border-radius: 50%;
+				width: 20px;
+				height: 20px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 0.75rem;
+				font-weight: 600;
+				margin-left: 0.5rem;
+				min-width: 20px;
+			}
 		}
 	}
 }

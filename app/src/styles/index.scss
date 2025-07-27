@@ -42,6 +42,51 @@ label {
 	}
 }
 
+.panelinha {
+	padding: 1rem;
+
+	.panelinha-card {
+		max-width: 900px;
+		margin: 0 auto;
+
+		.no-members {
+			text-align: center;
+			padding: 2rem;
+
+			span {
+				font-size: 3rem;
+				display: block;
+				margin-bottom:  1rem;
+			}
+
+			p {
+				color: var(--gray-11);
+				margin-bottom:  1rem;
+			}
+		}
+
+		.members-list {
+			display: flex;
+			flex-direction:  column;
+			gap: 1rem;
+
+			.member-card {
+				transition: all 0.2s ease;
+
+				&:hover {
+					transform: translateY(-1px);
+					box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+				}
+
+				.member-info {
+					cursor: pointer;
+					flex: 1;
+				}
+			}
+		}
+	}
+}
+
 .not-found {
 	display: flex;
 	justify-content: center;

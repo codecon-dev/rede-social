@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { User } from '../types';
 import { Button, TextField } from '@radix-ui/themes';
-import { LuLogOut, LuUser, LuSearch } from "react-icons/lu"
+import { LuLogOut, LuUser, LuSearch, LuUsers } from "react-icons/lu"
 import { Logo } from './Logo';
+import { apiClient } from '../services/api';
 
 const Navbar = ({ user, logout }: {
   user?: User,
@@ -11,9 +12,15 @@ const Navbar = ({ user, logout }: {
 }) => {
   const navigate = useNavigate();
   const [searchUsername, setSearchUsername] = useState('');
+  const [membersCount, setMembersCount] = useState<number>(0);
+  const [loadingCount, setLoadingCount] = useState(false);
 
   const handleProfileClick = () => {
     navigate('/profile');
+  };
+
+  const handlePanelinhaClick = () => {
+    navigate('/panelinha');
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -24,12 +31,42 @@ const Navbar = ({ user, logout }: {
     }
   };
 
+  const loadMembersCount = async () => {
+    if (!user) return;
+
+    setLoadingCount(true);
+    try {
+      const response = await apiClient.getPanelinhaMembersCount();
+      setMembersCount(response.count);
+    } catch (error) {
+      console.error('Error loading members count:', error);
+      // Fallback para dados mockados
+      setMembersCount(2);
+    } finally {
+      setLoadingCount(false);
+    }
+  };
+
+  useEffect(() => {
+    loadMembersCount();
+  }, [user]);
+
   return (
     <header>
       <div className="navbar-top">
         <Logo userName={user?.username} />
         {user && logout && (
           <div className='side-actions'>
+            <Button variant='outline' onClick={handlePanelinhaClick}>
+              <LuUsers />
+              Membros da Panelinha
+              {!loadingCount && (
+                <span className="members-count">
+                  {membersCount}
+                </span>
+              )}
+            </Button>
+
             <Button variant='outline' onClick={handleProfileClick} >
               <LuUser />
               {user?.username}

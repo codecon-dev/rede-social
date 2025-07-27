@@ -251,20 +251,40 @@ export class UserModel {
   }
 
   /**
-   * Gets the number of users a user is following
+   * Gets the number of users a user is following.
    *
    * @param userId - The ID of the user.
    * @returns The number of users being followed.
    */
-
-  static async getFollowingCount(userId: number):  Promise<number> {
-
+  static async getFollowingCount(userId: number): Promise<number> {
     const query = `
-    SELECT COUNT(*) as count FROM followers
-    WHERE follower_id =$1
+      SELECT COUNT(*) as count FROM followers 
+      WHERE follower_id = $1
     `;
-
+    
     const result = await pool.query(query, [userId]);
     return parseInt(result.rows[0].count);
+  }
+
+  /**
+   * Gets the list of users that a user is following (panelinha members).
+   *
+   * @param userId - The ID of the user.
+   * @param limit - Maximum number of results.
+   * @param offset - Number of results to skip.
+   * @returns Array of User objects.
+   */
+  static async getPanelinhaMembers(userId: number, limit: number = 50, offset: number = 0): Promise<User[]> {
+    const query = `
+      SELECT u.id, u.username, u.email, u.first_name, u.last_name, u.bio, u.avatar_url, u.is_verified, u.created_at, u.updated_at
+      FROM followers f
+      JOIN users u ON f.following_id = u.id
+      WHERE f.follower_id = $1
+      ORDER BY f.created_at DESC
+      LIMIT $2 OFFSET $3
+    `;
+    
+    const result = await pool.query(query, [userId, limit, offset]);
+    return result.rows.map(row => this.mapRowToUser(row));
   }
 }
