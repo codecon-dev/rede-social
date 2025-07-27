@@ -5,6 +5,7 @@ import { Button, TextField } from '@radix-ui/themes';
 import { LuLogOut, LuUser, LuSearch, LuUsers } from "react-icons/lu"
 import { Logo } from './Logo';
 import { apiClient } from '../services/api';
+import { useMockFollows } from '../hooks/useMockFollows';
 
 const Navbar = ({ user, logout }: {
   user?: User,
@@ -14,6 +15,7 @@ const Navbar = ({ user, logout }: {
   const [searchUsername, setSearchUsername] = useState('');
   const [membersCount, setMembersCount] = useState<number>(0);
   const [loadingCount, setLoadingCount] = useState(false);
+  const { getMockFollowsCount } = useMockFollows();
 
   const handleProfileClick = () => {
     navigate('/profile');
@@ -37,11 +39,15 @@ const Navbar = ({ user, logout }: {
     setLoadingCount(true);
     try {
       const response = await apiClient.getPanelinhaMembersCount();
-      setMembersCount(response.count);
+      const dbCount = response.count;
+
+      const mockCount = getMockFollowsCount();
+      
+      setMembersCount(dbCount + mockCount);
     } catch (error) {
       console.error('Error loading members count:', error);
-      // Fallback para dados mockados
-      setMembersCount(2);
+      const mockCount = getMockFollowsCount();
+      setMembersCount(mockCount);
     } finally {
       setLoadingCount(false);
     }
@@ -49,7 +55,7 @@ const Navbar = ({ user, logout }: {
 
   useEffect(() => {
     loadMembersCount();
-  }, [user]);
+  }, [user, getMockFollowsCount]);
 
   return (
     <header>

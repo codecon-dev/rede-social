@@ -4,6 +4,7 @@ import { Avatar, Button, Card, Flex, Text } from '@radix-ui/themes';
 import { LuArrowLeft, LuUserMinus } from 'react-icons/lu';
 import { apiClient } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useMockFollows } from '../hooks/useMockFollows';
 
 interface PanelinhaMember {
   id: number;
@@ -17,12 +18,56 @@ interface PanelinhaMember {
   updatedAt: string;
 }
 
+const mockUsers: Record<string, PanelinhaMember> = {
+    vtnorton: {
+        id: 1,
+        username: 'vtnorton',
+        firstName: 'Vitor',
+        lastName: 'Norton',
+        bio: 'Desenvolvedor apaixonado por cinema, e sim Anora é bom demais!',
+        isVerified: false,
+        createdAt: '',
+        updatedAt: ''
+    },
+	johndoe: {
+		id: 2,
+		username: 'johndoe',
+		firstName: 'João',
+		lastName: 'Silva',
+		bio: 'Amante de livros e viagens pelo mundo 🌎',
+		isVerified: false,
+		createdAt: '',
+		updatedAt: ''
+	},
+	mariasilva: {
+		id: 3,
+		username: 'mariasilva',
+		firstName: 'Maria',
+		lastName: 'Silva',
+		bio: 'Designer gráfica e artista nas horas vagas 🎨',
+		isVerified: false,
+		createdAt: '',
+		updatedAt: ''
+	},
+	jeniblo: {
+		id: 4,
+		username: 'jeniblo',
+		firstName: 'Jeni',
+		lastName: 'Bittencourt',
+		bio: 'Dev Javeira apaixonada por gatos, Pokémon e TCG',
+		isVerified: false,
+		createdAt: '',
+		updatedAt: ''
+	},
+};
+
 const PanelinhaPage: React.FC = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const [members, setMembers] = useState<PanelinhaMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [unfollowLoading, setUnfollowLoading] = useState<number | null>(null);
+  const { mockFollows, removeMockFollow } = useMockFollows();
 
   const loadPanelinhaMembers = async () => {
     if (!currentUser) return;
@@ -30,32 +75,19 @@ const PanelinhaPage: React.FC = () => {
     setLoading(true);
     try {
       const response = await apiClient.getPanelinhaMembers();
-      setMembers(response.members);
+      const dbMembers = response.members;
+
+      const mockMembers = Object.values(mockUsers).filter(user => 
+        mockFollows.has(user.id)
+      );
+
+      const allMembers = [...dbMembers, ...mockMembers];
+      setMembers(allMembers);
     } catch (error) {
       console.error('Error loading panelinha members:', error);
-      // Fallback para dados mockados em caso de erro
-      const mockMembers: PanelinhaMember[] = [
-        {
-          id: 2,
-          username: 'johndoe',
-          firstName: 'João',
-          lastName: 'Silva',
-          bio: 'Amante de livros e viagens pelo mundo 🌎',
-          isVerified: false,
-          createdAt: '',
-          updatedAt: ''
-        },
-        {
-          id: 3,
-          username: 'mariasilva',
-          firstName: 'Maria',
-          lastName: 'Silva',
-          bio: 'Designer gráfica e artista nas horas vagas 🎨',
-          isVerified: false,
-          createdAt: '',
-          updatedAt: ''
-        }
-      ];
+      const mockMembers = Object.values(mockUsers).filter(user => 
+        mockFollows.has(user.id)
+      );
       setMembers(mockMembers);
     } finally {
       setLoading(false);
@@ -67,8 +99,15 @@ const PanelinhaPage: React.FC = () => {
 
     setUnfollowLoading(memberId);
     try {
-      await apiClient.unfollowUser(memberId);
-      setMembers(prev => prev.filter(member => member.id !== memberId));
+      const isMockUser = Object.values(mockUsers).some(user => user.id === memberId);
+      
+      if (isMockUser) {
+        removeMockFollow(memberId);
+        setMembers(prev => prev.filter(member => member.id !== memberId));
+      } else {
+        await apiClient.unfollowUser(memberId);
+        setMembers(prev => prev.filter(member => member.id !== memberId));
+      }
     } catch (error) {
       console.error('Error unfollowing member:', error);
     } finally {
@@ -82,7 +121,7 @@ const PanelinhaPage: React.FC = () => {
 
   useEffect(() => {
     loadPanelinhaMembers();
-  }, [currentUser]);
+  }, [currentUser, mockFollows]);
 
   if (loading) {
     return (
@@ -113,7 +152,7 @@ const PanelinhaPage: React.FC = () => {
           {members.length === 0 ? (
             <div className="no-members">
               <span>😢</span>
-              <p>Sua panelinha está vazia. Que tal adicionar algumas pessoas?</p>
+              <p>Ninguém? Nem um bot? Nem a equipe de suporte? Que nível de solidão é esse?</p>
               <Button variant="outline" onClick={() => navigate('/')}>
                 Explorar usuários
               </Button>

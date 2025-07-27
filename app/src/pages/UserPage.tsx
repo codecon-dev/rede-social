@@ -6,6 +6,7 @@ import type { Post, User } from '../types';
 import PostCard from '../components/PostCard';
 import { apiClient } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useMockFollows } from '../hooks/useMockFollows';
 
 const mockUsers: Record<string, User> = {
 	vtnorton: {
@@ -65,6 +66,8 @@ const UserPage: React.FC = () => {
 	const [selectedThought, setSelectedThought] = useState<string>('');
 	const [isFollowing, setIsFollowing] = useState<boolean>(false);
 	const [followLoading, setFollowLoading] = useState<boolean>(false);
+	const [isMockUser, setIsMockUser] = useState<boolean>(false);
+	const { isMockFollowing, addMockFollow, removeMockFollow } = useMockFollows();
 
 	const loadUser = useCallback(async () => {
 		if (!username) return;
@@ -73,13 +76,16 @@ const UserPage: React.FC = () => {
 		try {
 			const dbUser = await apiClient.getUserByUsername(username);
 			setUser(dbUser);
+			setIsMockUser(false);
 		} catch (error) {
 			console.error('Usuário não encontrado no banco, tentando os dados mockados...', error);
 			const mockUser = mockUsers[username.toLowerCase()];
 			if (mockUser) {
 				setUser(mockUser);
+				setIsMockUser(true);
 			} else {
 				setUser(null);
+				setIsMockUser(false);
 			}
 		} finally {
 			setLoading(false);
@@ -89,25 +95,38 @@ const UserPage: React.FC = () => {
 	const loadFollowStatus = useCallback(async () => {
 		if (!currentUser || !user || currentUser.id === user.id) return;
 
-		try {
-			const status = await apiClient.checkFollowStatus(user.id);
-			setIsFollowing(status.isFollowing);
-		} catch (error) {
-			console.error('Error loading follow status', error);
+		if (isMockUser) {
+			setIsFollowing(isMockFollowing(user.id));
+		} else {
+			try {
+				const status = await apiClient.checkFollowStatus(user.id);
+				setIsFollowing(status.isFollowing);
+			} catch (error) {
+				console.error('Error loading follow status', error);
+			}
 		}
-	}, [currentUser, user]);
+	}, [currentUser, user, isMockUser, isMockFollowing]);
 
 	const handleFollowToggle = async () => {
 		if (!currentUser || !user || currentUser.id === user.id) return;
 
 		setFollowLoading(true);
 		try {
-			if (isFollowing) {
-				await apiClient.unfollowUser(user.id);
-				setIsFollowing(false);
+			if (isMockUser) {
+				if (isFollowing) {
+					removeMockFollow(user.id);
+				} else {
+					addMockFollow(user.id);
+				}
+				setIsFollowing(!isFollowing);
 			} else {
-				await apiClient.followUser(user.id);
-				setIsFollowing(true);
+				if (isFollowing) {
+					await apiClient.unfollowUser(user.id);
+					setIsFollowing(false);
+				} else {
+					await apiClient.followUser(user.id);
+					setIsFollowing(true);
+				}
 			}
 		} catch (error) {
 			console.error('Error toggling follow', error);
