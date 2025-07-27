@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { User } from '../types';
 import { Button, TextField } from '@radix-ui/themes';
 import { LuLogOut, LuUser, LuSearch, LuUsers } from "react-icons/lu"
 import { Logo } from './Logo';
-import { apiClient } from '../services/api';
-import { useMockFollows } from '../hooks/useMockFollows';
+import { useMockFollows } from '../contexts/MockFollowsContext';
+import { useFollows } from '../contexts/FollowsContext';
 
 const Navbar = ({ user, logout }: {
   user?: User,
@@ -13,9 +13,8 @@ const Navbar = ({ user, logout }: {
 }) => {
   const navigate = useNavigate();
   const [searchUsername, setSearchUsername] = useState('');
-  const [membersCount, setMembersCount] = useState<number>(0);
-  const [loadingCount, setLoadingCount] = useState(false);
   const { getMockFollowsCount } = useMockFollows();
+  const { dbFollowsCount, isLoading: dbLoading } = useFollows();
 
   const handleProfileClick = () => {
     navigate('/profile');
@@ -33,29 +32,9 @@ const Navbar = ({ user, logout }: {
     }
   };
 
-  const loadMembersCount = async () => {
-    if (!user) return;
-
-    setLoadingCount(true);
-    try {
-      const response = await apiClient.getPanelinhaMembersCount();
-      const dbCount = response.count;
-
-      const mockCount = getMockFollowsCount();
-      
-      setMembersCount(dbCount + mockCount);
-    } catch (error) {
-      console.error('Error loading members count:', error);
-      const mockCount = getMockFollowsCount();
-      setMembersCount(mockCount);
-    } finally {
-      setLoadingCount(false);
-    }
-  };
-
-  useEffect(() => {
-    loadMembersCount();
-  }, [user, getMockFollowsCount]);
+  const mockCount = getMockFollowsCount();
+  const totalMembersCount = dbFollowsCount + mockCount;
+  const isLoading = dbLoading;
 
   return (
     <header>
@@ -66,9 +45,9 @@ const Navbar = ({ user, logout }: {
             <Button variant='outline' onClick={handlePanelinhaClick}>
               <LuUsers />
               Membros da Panelinha
-              {!loadingCount && (
+              {!isLoading && (
                 <span className="members-count">
-                  {membersCount}
+                  {totalMembersCount}
                 </span>
               )}
             </Button>

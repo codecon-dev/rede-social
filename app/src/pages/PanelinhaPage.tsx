@@ -4,7 +4,8 @@ import { Avatar, Button, Card, Flex, Text } from '@radix-ui/themes';
 import { LuArrowLeft, LuUserMinus } from 'react-icons/lu';
 import { apiClient } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { useMockFollows } from '../hooks/useMockFollows';
+import { useMockFollows } from '../contexts/MockFollowsContext';
+import { useFollows } from '../contexts/FollowsContext';
 
 interface PanelinhaMember {
   id: number;
@@ -29,7 +30,7 @@ const mockUsers: Record<string, PanelinhaMember> = {
         createdAt: '',
         updatedAt: ''
     },
-	johndoe: {
+    johndoe: {
 		id: 2,
 		username: 'johndoe',
 		firstName: 'João',
@@ -68,6 +69,7 @@ const PanelinhaPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [unfollowLoading, setUnfollowLoading] = useState<number | null>(null);
   const { mockFollows, removeMockFollow } = useMockFollows();
+  const { refreshDbFollowsCount } = useFollows();
 
   const loadPanelinhaMembers = async () => {
     if (!currentUser) return;
@@ -77,7 +79,7 @@ const PanelinhaPage: React.FC = () => {
       const response = await apiClient.getPanelinhaMembers();
       const dbMembers = response.members;
 
-      const mockMembers = Object.values(mockUsers).filter(user => 
+      const mockMembers = Object.values(mockUsers).filter(user =>
         mockFollows.has(user.id)
       );
 
@@ -85,7 +87,7 @@ const PanelinhaPage: React.FC = () => {
       setMembers(allMembers);
     } catch (error) {
       console.error('Error loading panelinha members:', error);
-      const mockMembers = Object.values(mockUsers).filter(user => 
+      const mockMembers = Object.values(mockUsers).filter(user =>
         mockFollows.has(user.id)
       );
       setMembers(mockMembers);
@@ -107,6 +109,7 @@ const PanelinhaPage: React.FC = () => {
       } else {
         await apiClient.unfollowUser(memberId);
         setMembers(prev => prev.filter(member => member.id !== memberId));
+        await refreshDbFollowsCount();
       }
     } catch (error) {
       console.error('Error unfollowing member:', error);

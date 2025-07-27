@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { FollowsProvider } from './contexts/FollowsContext';
+import { MockFollowsProvider } from './contexts/MockFollowsContext';
 import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
@@ -42,14 +44,18 @@ const AppContent: React.FC = () => {
   );
 };
 
-function App() {
+const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </BrowserRouter>
+    <AuthProvider>
+      <MockFollowsProvider>
+        <FollowsProvider>
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </FollowsProvider>
+      </MockFollowsProvider>
+    </AuthProvider>
   );
-}
+};
 
-export default App
+export default App;

@@ -6,7 +6,8 @@ import type { Post, User } from '../types';
 import PostCard from '../components/PostCard';
 import { apiClient } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { useMockFollows } from '../hooks/useMockFollows';
+import { useMockFollows } from '../contexts/MockFollowsContext';
+import { useFollows } from '../contexts/FollowsContext';
 
 const mockUsers: Record<string, User> = {
 	vtnorton: {
@@ -68,6 +69,7 @@ const UserPage: React.FC = () => {
 	const [followLoading, setFollowLoading] = useState<boolean>(false);
 	const [isMockUser, setIsMockUser] = useState<boolean>(false);
 	const { isMockFollowing, addMockFollow, removeMockFollow } = useMockFollows();
+	const { refreshDbFollowsCount } = useFollows();
 
 	const loadUser = useCallback(async () => {
 		if (!username) return;
@@ -127,6 +129,7 @@ const UserPage: React.FC = () => {
 					await apiClient.followUser(user.id);
 					setIsFollowing(true);
 				}
+				await refreshDbFollowsCount();
 			}
 		} catch (error) {
 			console.error('Error toggling follow', error);
