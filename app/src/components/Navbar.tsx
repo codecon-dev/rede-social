@@ -1,39 +1,43 @@
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import type { User } from '../types';
-import { Button, TextField } from '@radix-ui/themes';
-import { LuLogOut, LuUser, LuSearch, LuUsers } from "react-icons/lu"
-import { Logo } from './Logo';
-import { useMockFollows } from '../contexts/MockFollowsContext';
-import { useFollows } from '../contexts/FollowsContext';
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import type { User } from "../types";
+import { Button, TextField } from "@radix-ui/themes";
+import {
+  LuLogOut,
+  LuUser,
+  LuSearch,
+  LuUsers,
+  LuMessageCircle,
+} from "react-icons/lu";
+import { Logo } from "./Logo";
+import { useFollows } from "../contexts/FollowsContext";
 
-const Navbar = ({ user, logout }: {
-  user?: User,
-  logout?: () => void
-}) => {
+const Navbar = ({ user, logout }: { user?: User; logout?: () => void }) => {
   const navigate = useNavigate();
-  const [searchUsername, setSearchUsername] = useState('');
-  const { getMockFollowsCount } = useMockFollows();
+  const [searchUsername, setSearchUsername] = useState("");
   const { dbFollowsCount, isLoading: dbLoading } = useFollows();
 
   const handleProfileClick = () => {
-    navigate('/profile');
+    navigate("/profile");
   };
 
   const handlePanelinhaClick = () => {
-    navigate('/panelinha');
+    navigate("/panelinha");
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchUsername.trim()) {
       navigate(`/user/${searchUsername.trim()}`);
-      setSearchUsername('');
+      setSearchUsername("");
     }
   };
 
-  const mockCount = getMockFollowsCount();
-  const totalMembersCount = dbFollowsCount + mockCount;
+  const handleChatClick = () => {
+    navigate("/chat");
+  };
+
+  const totalMembersCount = dbFollowsCount;
   const isLoading = dbLoading;
 
   return (
@@ -41,18 +45,21 @@ const Navbar = ({ user, logout }: {
       <div className="navbar-top">
         <Logo userName={user?.username} />
         {user && logout && (
-          <div className='side-actions'>
-            <Button variant='outline' onClick={handlePanelinhaClick}>
+          <div className="side-actions">
+            <Button variant="outline" onClick={handleChatClick}>
+              <LuMessageCircle />
+              Chat
+            </Button>
+
+            <Button variant="outline" onClick={handlePanelinhaClick}>
               <LuUsers />
               Membros da Panelinha
               {!isLoading && (
-                <span className="members-count">
-                  {totalMembersCount}
-                </span>
+                <span className="members-count">{totalMembersCount}</span>
               )}
             </Button>
 
-            <Button variant='outline' onClick={handleProfileClick} >
+            <Button variant="outline" onClick={handleProfileClick}>
               <LuUser />
               {user?.username}
             </Button>
@@ -71,10 +78,10 @@ const Navbar = ({ user, logout }: {
               placeholder="Pesquisar usuário..."
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
-              size={'3'}
+              size={"3"}
               className="search-input"
             >
-              <TextField.Slot side='right' onClick={handleSearch}>
+              <TextField.Slot side="right" onClick={handleSearch}>
                 <LuSearch size={18} />
               </TextField.Slot>
             </TextField.Root>

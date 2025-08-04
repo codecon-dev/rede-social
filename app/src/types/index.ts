@@ -32,7 +32,7 @@ export interface PostPaged {
     page: number;
     limit: number;
     hasMore: boolean;
-  }
+  };
 }
 
 export interface LoginRequest {
@@ -73,7 +73,7 @@ export interface PatologicalVote {
   id: number;
   voterId: number;
   targetUserId: number;
-  voteType: 'patocinado' | 'patodavida' | 'patonimo';
+  voteType: "patocinado" | "patodavida" | "patonimo";
   createdAt: string;
 }
 
@@ -88,4 +88,38 @@ export interface PatologicalVoteStats {
     patonimo: number;
   };
   userVote?: string;
+}
+
+export interface ChatRoom {
+  id: number;
+  name: string;
+  is_group: boolean;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+  members: ChatRoomMember[];
+  last_message: ChatMessage | null;
+}
+
+export interface CreateChatRoomRequest {
+  name?: string;
+  is_group?: boolean;
+  member_ids?: number[];
+}
+
+export interface ChatRoomMember {
+  user_id: number;
+  room_id: number;
+  username: string;
+  first_name?: string;
+  last_name?: string;
+}
+
+export interface ChatMessage extends ChatRoomMember {
+  id: number;
+  room_id: number;
+  message: string;
+  message_type: "text" | "image" | "video";
+  is_read: boolean;
+  created_at: string;
 }

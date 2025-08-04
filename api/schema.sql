@@ -57,6 +57,33 @@ CREATE TABLE IF NOT EXISTS followers (
   UNIQUE(follower_id, following_id)
 );
 
+CREATE TABLE IF NOT EXISTS chat_rooms (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NULL,
+  is_group BOOLEAN DEFAULT FALSE,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS chat_rooms_members (
+  id SERIAL PRIMARY KEY,
+  room_id INTEGER REFERENCES chat_rooms(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(room_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id SERIAL PRIMARY KEY,
+  room_id INTEGER REFERENCES chat_rooms(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  message TEXT NOT NULL,
+  message_type VARCHAR(50) NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);

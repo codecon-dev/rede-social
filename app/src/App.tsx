@@ -1,16 +1,16 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { FollowsProvider } from './contexts/FollowsContext';
-import { MockFollowsProvider } from './contexts/MockFollowsContext';
-import LandingPage from './pages/LandingPage';
-import HomePage from './pages/HomePage';
-import ProfilePage from './pages/ProfilePage';
-import UserPage from './pages/UserPage';
-import PanelinhaPage from './pages/PanelinhaPage';
-import NotFoundPage from './pages/NotFoundPage';
-import './styles/index.scss';
-import Navbar from './components/Navbar';
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { FollowsProvider } from "./contexts/FollowsContext";
+import LandingPage from "./pages/LandingPage";
+import HomePage from "./pages/HomePage";
+import ProfilePage from "./pages/ProfilePage";
+import UserPage from "./pages/UserPage";
+import PanelinhaPage from "./pages/PanelinhaPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import "./styles/index.scss";
+import Navbar from "./components/Navbar";
+import ChatPage from "./pages/ChatPage";
 
 const AppContent: React.FC = () => {
   const { user, logout, loading } = useAuth();
@@ -30,12 +30,14 @@ const AppContent: React.FC = () => {
   return (
     <>
       <Navbar user={user} logout={logout} />
-      <div className='wrapper'>
+      <div className="wrapper">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/user/:username" element={<UserPage />} />
           <Route path="/panelinha" element={<PanelinhaPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/chat/:room_id" element={<ChatPage />} />
           <Route path="/404" element={<NotFoundPage />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
@@ -47,13 +49,11 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <MockFollowsProvider>
-        <FollowsProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        </FollowsProvider>
-      </MockFollowsProvider>
+      <FollowsProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </FollowsProvider>
     </AuthProvider>
   );
 };
