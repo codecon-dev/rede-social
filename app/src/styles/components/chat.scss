@@ -1,211 +1,211 @@
 .chat-page {
-    height: calc(100vh - 10rem - 2rem);
-    width: 100%;
-    background: white;
-    overflow: hidden;
-    display: flex;
+  height: calc(100vh - 10rem - 2rem);
+  width: 100%;
+  background: black;
+  overflow: hidden;
+  display: flex;
 }
 
 .chat-sidebar {
-    width: clamp(300px, 100vw, 400px);
-    display: flex;
-    flex-direction: column;
-    position: relative;
+  width: clamp(300px, 100vw, 400px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
 
-    @media (max-width: 768px) {
-        width: 100%;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+
+  &__header {
+    position: relative;
+    height: 3.5rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+  }
+
+  .room-item {
+    width: 100%;
+    // remove button styling
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: start;
+    min-width: 0;
+    padding: 0.75rem 1rem;
+
+    &--active {
+      background: var(--grass-3);
+    }
+
+    &__content {
+      width: 100%;
     }
 
     &__header {
-        position: relative;
-        height: 3.5rem;
-        width: 100%;
-        padding: 0.75rem 1rem;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      text-wrap: nowrap;
+      text-align: start;
     }
 
-    .room-item {
-        width: 100%;
-        // remove button styling
-        background: none;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: start;
-        min-width: 0;
-        padding: 0.75rem 1rem;
-
-        &--active {
-            background: var(--grass-3);
-        }
-
-        &__content {
-            width: 100%;
-        }
-
-        &__header {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 0.5rem;
-            text-wrap: nowrap;
-            text-align: start;
-        }
-
-        &__preview {
-            text-align: start;
-            color: var(--gray-11);
-            font-size: 0.9rem;
-            margin-top: 0.25rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+    &__preview {
+      text-align: start;
+      color: var(--gray-11);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
+  }
 }
 
 .chat-window {
-    width: 100%;
+  width: 100%;
+  background: var(--gray-2);
+  height: calc(100vh - 10rem - 6rem);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     background: var(--gray-2);
-    height: calc(100vh - 10rem - 6rem);
+    height: 3.5rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+  }
 
-    &__header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--gray-2);
-        height: 3.5rem;
-        width: 100%;
-        padding: 0.75rem 1rem;
+  &__back-button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+
+    &:hover {
+      background-color: var(--gray-5);
+    }
+  }
+
+  &__messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    height: calc(100% - 3.5rem);
+    overflow-y: auto;
+
+    .message-bubble {
+      max-width: 70%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 16px;
+      word-break: break-word;
+
+      &--own {
+        background-color: var(--grass-3);
+        align-self: flex-end;
+        color: var(--gray-1);
+      }
+
+      &--other {
+        background-color: var(--gray-3);
+        align-self: flex-start;
+        color: var(--gray-12);
+      }
+
+      &__author,
+      &__time {
+        font-size: 0.8rem;
+        align-self: flex-end;
+        color: var(--gray-12);
+      }
+    }
+  }
+
+  .message-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--gray-2);
+    border-top: 1px solid var(--gray-5);
+
+    input {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--gray-5);
+      font-size: 0.9rem;
+      color: var(--gray-12);
+      background-color: var(--gray-1);
+
+      &:focus {
+        outline: none;
+        border-color: var(--grass-10);
+      }
     }
 
-    &__back-button {
-        background: none;
-        border: none;
-        padding: 0.5rem;
+    button {
+      background-color: var(--grass-10);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
 
-        &:hover {
-            background-color: var(--gray-5);
-        }
+      &:hover {
+        background-color: var(--grass-9);
+      }
+    }
+  }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-11);
+    font-size: 0.9rem;
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--grass-10);
+      border-radius: 50%;
+      animation: typing 1s infinite ease-in-out;
     }
 
-    &__messages {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 1rem;
-        height: calc(100% - 3.5rem);
-        overflow-y: auto;
+    @keyframes typing {
+      0%,
+      100% {
+        opacity: 0.2;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+  }
 
-        .message-bubble {
-            max-width: 70%;
-            padding: 0.5rem 0.75rem;
-            border-radius: 16px;
-            word-break: break-word;
+  &--empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--gray-11);
+    font-size: 1.2rem;
 
-            &--own {
-                background-color: var(--grass-3);
-                align-self: flex-end;
-                color: var(--gray-1);
-            }
-
-            &--other {
-                background-color: var(--gray-3);
-                align-self: flex-start;
-                color: var(--gray-12);
-            }
-
-            &__author,
-            &__time {
-                font-size: 0.8rem;
-                align-self: flex-end;
-                color: var(--gray-12);
-            }
-        }
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
     }
 
-    .message-input {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem;
-        background: var(--gray-2);
-        border-top: 1px solid var(--gray-5);
-
-        input {
-            flex: 1;
-            padding: 0.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--gray-5);
-            font-size: 0.9rem;
-            color: var(--gray-12);
-            background-color: var(--gray-1);
-
-            &:focus {
-                outline: none;
-                border-color: var(--grass-10);
-            }
-        }
-
-        button {
-            background-color: var(--grass-10);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-
-            &:hover {
-                background-color: var(--grass-9);
-            }
-        }
+    .empty-text {
+      text-align: center;
+      max-width: 400px;
     }
-
-    .typing-indicator {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--gray-11);
-        font-size: 0.9rem;
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--grass-10);
-            border-radius: 50%;
-            animation: typing 1s infinite ease-in-out;
-        }
-
-        @keyframes typing {
-            0%,
-            100% {
-                opacity: 0.2;
-            }
-            50% {
-                opacity: 1;
-            }
-        }
-    }
-
-    &--empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        justify-content: center;
-        height: 100%;
-        color: var(--gray-11);
-        font-size: 1.2rem;
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .empty-text {
-            text-align: center;
-            max-width: 400px;
-        }
-    }
+  }
 }
