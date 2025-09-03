@@ -9,7 +9,8 @@
     "debug": "ts-node-dev --inspect=0.0.0.0:9229 --respawn --transpile-only src/server.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "lint": "eslint src/**/*.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed": "ts-node src/scripts/seed.ts"
   },
   "keywords": [
     "social-network",

@@ -60,8 +60,10 @@ const Sidebar = ({ user, logout }: { user?: User; logout?: () => void }) => {
           Sair
         </Button>
       </nav>
-
-      <img src='https://fiverr-res.cloudinary.com/images/t_main1,q_auto,f_auto,q_auto,f_auto/gigs/226501885/original/387d07b30df8e53c949fd9b3eb7dc1499ce61906/setup-and-manage-the-facebook-ads-campaigns.jpg' />
+      ANÚNCIO
+      <a href='https://eventos.codecon.dev/codecon-summit-26/'>
+        <img src='https://images.even3.com/Deg_0Btj1NfyNb0vHx-4E4UMHZw=/1100x440/smart/https://static.even3.com/banner/capa-even3.7bb293d07c4a4195af14.png' />
+      </a>
     </aside>
   );
 };

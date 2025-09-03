@@ -63,6 +63,10 @@ class ApiClient {
     return this.request<PostPaged>("/users/timeline");
   }
 
+  async getAllPostsRandom(): Promise<PostPaged> {
+    return this.request<PostPaged>("/posts/random");
+  }
+
   async getUserTimeline(userId: number): Promise<PostPaged> {
     console.error("Esta api não está implementada, sorry!");
     return this.request<PostPaged>("/users/" + userId + "/posts");

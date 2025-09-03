@@ -9,6 +9,7 @@ export interface User {
   isVerified: boolean;
   createdAt: string;
   updatedAt: string;
+  isMockUser?: boolean; // Para identificar usuários mockados
 }
 
 export interface Post {

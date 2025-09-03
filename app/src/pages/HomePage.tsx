@@ -15,12 +15,25 @@ const HomePage: React.FC = () => {
 
   const loadTimeline = useCallback(async () => {
     try {
+      // Tenta primeiro buscar posts de todos os usuários (rota que você pediu para implementar)
+      try {
+        const randomPosts = await apiClient.getAllPostsRandom();
+        console.log(`Encontrados ${randomPosts.posts.length} posts aleatórios de todos os usuários`);
+        setPosts(randomPosts.posts);
+        return;
+      } catch (randomError) {
+        console.log("Rota de posts aleatórios não disponível, tentando timeline de amigos:", randomError);
+      }
+      
+      // Se a rota de posts aleatórios não existir, usa o timeline atual
       const timelinePosts = await apiClient.getTimeline();
-      // setPostsPagination(timelinePosts);
+      console.log(`Encontrados ${timelinePosts.posts.length} posts no timeline atual`);
       setPosts(timelinePosts.posts);
+      
     } catch (err) {
-      setError("Failed to load timeline");
-      console.error("Timeline error:", err);
+      console.error("Erro ao carregar posts:", err);
+      setError("Failed to load posts");
+      setPosts([]); // Array vazio ao invés de dados mockados
     } finally {
       setLoading(false);
     }
