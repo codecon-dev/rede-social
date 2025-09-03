@@ -1,18 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Avatar,
-  Button,
-  Card,
-  DropdownMenu,
-  Flex,
-  Text,
-  Tooltip,
-} from "@radix-ui/themes";
+import { Avatar, Button, Card, DropdownMenu, Flex, Text, Tooltip } from "@radix-ui/themes";
 import { LuArrowLeft, LuUserPlus, LuUserMinus } from "react-icons/lu";
 import type { Post, User, PatologicalVoteStats } from "../types";
 import PostCard from "../components/PostCard";
 import { apiClient } from "../services/api";
+import { patologicalVoteService } from "../services/patologicalVotes";
 import { useAuth } from "../contexts/AuthContext";
 import { useFollows } from "../contexts/FollowsContext";
 import patocinado from "../assets/patocinado.png";
@@ -78,8 +71,7 @@ const UserPage: React.FC = () => {
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [followLoading, setFollowLoading] = useState<boolean>(false);
   const [isMockUser, setIsMockUser] = useState<boolean>(false);
-  const [patologicalStats, setPatologicalStats] =
-    useState<PatologicalVoteStats | null>(null);
+  const [patologicalStats, setPatologicalStats] = useState<PatologicalVoteStats | null>(null);
   const [votingLoading, setVotingLoading] = useState<boolean>(false);
   const [voteFeedback, setVoteFeedback] = useState<string>("");
   const { refreshDbFollowsCount } = useFollows();
@@ -93,10 +85,7 @@ const UserPage: React.FC = () => {
       setUser(dbUser);
       setIsMockUser(false);
     } catch (error) {
-      console.error(
-        "Usuário não encontrado no banco, tentando os dados mockados...",
-        error,
-      );
+      console.error("Usuário não encontrado no banco, tentando os dados mockados...", error);
       const mockUser = mockUsers[username.toLowerCase()];
       if (mockUser) {
         setUser(mockUser);
@@ -170,126 +159,34 @@ const UserPage: React.FC = () => {
   };
 
   const loadPatologicalStats = useCallback(async () => {
-    if (!user) return;
+    if (!user || !currentUser) return;
 
     try {
-      const stats = await apiClient.getPatologicalVoteStats(user.id);
+      const stats = await patologicalVoteService.getVoteStats(user.id, currentUser.id);
       setPatologicalStats(stats);
     } catch (error) {
       console.error("Error loading patological stats:", error);
-      const mockStats: PatologicalVoteStats = {
-        patocinado: 15,
-        patodavida: 10,
-        patonimo: 8,
-        total: 33,
-        percentages: {
-          patocinado: 45.5,
-          patodavida: 30.3,
-          patonimo: 24.2,
-        },
-        userVote: undefined,
-      };
-
-      const localVote = getLocalVotes(user.id);
-      if (localVote && localVote.userVote) {
-        mockStats.userVote = localVote.userVote;
-      }
-
-      setPatologicalStats(mockStats);
     }
-  }, [user]);
+  }, [user, currentUser]);
 
-  const getLocalVotes = (targetUserId: number) => {
-    try {
-      const localVotes = localStorage.getItem(
-        `patological_votes_${targetUserId}`,
-      );
-      return localVotes ? JSON.parse(localVotes) : null;
-    } catch (error) {
-      console.error("Error reading local votes:", error);
-      return null;
-    }
-  };
-
-  const saveLocalVotes = (targetUserId: number, votes: any) => {
-    try {
-      localStorage.setItem(
-        `patological_votes_${targetUserId}`,
-        JSON.stringify(votes),
-      );
-    } catch (error) {
-      console.error("Error saving local votes:", error);
-    }
-  };
-
-  const handlePatologicalVote = async (
-    voteType: "patocinado" | "patodavida" | "patonimo",
-  ) => {
+  const handlePatologicalVote = async (voteType: "antipato" | "pato_no_tucupi" | "patotastico") => {
     if (!currentUser || !user || currentUser.id === user.id) return;
 
     setVotingLoading(true);
     setVoteFeedback("");
 
     try {
-      await apiClient.votePatological(user.id, voteType);
-      await loadPatologicalStats();
-      setVoteFeedback("Voto compatado!");
+      const result = await patologicalVoteService.vote(currentUser.id, user.id, voteType);
+
+      if (result.success) {
+        await loadPatologicalStats();
+        setVoteFeedback(result.message);
+      } else {
+        setVoteFeedback(result.message);
+      }
     } catch (error) {
       console.error("Error voting patological:", error);
-      if (patologicalStats) {
-        const newStats = { ...patologicalStats };
-
-        if (newStats.userVote && newStats.userVote !== voteType) {
-          newStats[newStats.userVote as keyof typeof newStats]--;
-          newStats.total--;
-        }
-
-        if (!newStats.userVote || newStats.userVote !== voteType) {
-          newStats[voteType as keyof typeof newStats]++;
-          newStats.total++;
-        }
-
-        if (newStats.total > 0) {
-          newStats.percentages.patocinado =
-            Math.round((newStats.patocinado / newStats.total) * 1000) / 10;
-          newStats.percentages.patodavida =
-            Math.round((newStats.patodavida / newStats.total) * 1000) / 10;
-          newStats.percentages.patonimo =
-            Math.round((newStats.patonimo / newStats.total) * 1000) / 10;
-        }
-
-        newStats.userVote = voteType;
-
-        saveLocalVotes(user.id, {
-          userVote: voteType,
-          timestamp: Date.now(),
-        });
-
-        setPatologicalStats(newStats);
-        setVoteFeedback("Voto compatado!");
-      } else {
-        // Se não há stats, cria um novo com o voto
-        const initialStats: PatologicalVoteStats = {
-          patocinado: voteType === "patocinado" ? 1 : 0,
-          patodavida: voteType === "patodavida" ? 1 : 0,
-          patonimo: voteType === "patonimo" ? 1 : 0,
-          total: 1,
-          percentages: {
-            patocinado: voteType === "patocinado" ? 100.0 : 0.0,
-            patodavida: voteType === "patodavida" ? 100.0 : 0.0,
-            patonimo: voteType === "patonimo" ? 100.0 : 0.0,
-          },
-          userVote: voteType,
-        };
-
-        saveLocalVotes(user.id, {
-          userVote: voteType,
-          timestamp: Date.now(),
-        });
-
-        setPatologicalStats(initialStats);
-        setVoteFeedback("Primeiro voto compatado!");
-      }
+      setVoteFeedback("Erro ao computar voto");
     } finally {
       setVotingLoading(false);
       setTimeout(() => setVoteFeedback(""), 3000);
@@ -310,8 +207,8 @@ const UserPage: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="profile">
-        <Card size={"4"} className="profile-card">
+      <section className='profile'>
+        <Card size={"4"} className='profile-card'>
           <Flex direction={"column"} align={"center"} gap={"4"}>
             <h1>Carregando...</h1>
           </Flex>
@@ -322,15 +219,14 @@ const UserPage: React.FC = () => {
 
   if (!user) {
     return (
-      <section className="profile">
-        <Card size={"4"} className="profile-card">
+      <section className='profile'>
+        <Card size={"4"} className='profile-card'>
           <Flex direction={"column"} align={"center"} gap={"4"}>
             <h1>Usuário não encontrado</h1>
             <p style={{ textAlign: "center" }}>
-              O usuário @{username} não foi encontrado, provavelmente ele te
-              bloqueou e você não ficou sabendo.
+              O usuário @{username} não foi encontrado, provavelmente ele te bloqueou e você não ficou sabendo.
             </p>
-            <Button variant="outline" onClick={() => navigate("/")}>
+            <Button variant='outline' onClick={() => navigate("/")}>
               <LuArrowLeft /> Voltar
             </Button>
           </Flex>
@@ -343,12 +239,12 @@ const UserPage: React.FC = () => {
 
   return (
     <>
-      <section className="profile">
-        <Card size={"4"} className="profile-card">
+      <section className='profile'>
+        <Card size={"4"} className='profile-card'>
           <Flex gap={"6"} align={"start"}>
             <Avatar
               size={"8"}
-              radius="full"
+              radius='full'
               src={user?.avatarUrl || undefined}
               fallback={user?.username?.substring(0, 1)?.toUpperCase() || "U"}
             />
@@ -358,9 +254,9 @@ const UserPage: React.FC = () => {
                 align={"baseline"}
                 style={{ marginBottom: "1rem" }}
                 direction={"column"}
-                className="name-button-container"
+                className='name-button-container'
               >
-                <div className="name-container">
+                <div className='name-container'>
                   {user?.firstName ? (
                     <>
                       <h1>
@@ -382,31 +278,26 @@ const UserPage: React.FC = () => {
                       variant={isFollowing ? "solid" : "outline"}
                       onClick={handleFollowToggle}
                       disabled={followLoading}
-                      size="2"
+                      size='2'
                       data-follow-button
                     >
                       {isFollowing ? <LuUserMinus /> : <LuUserPlus />}
                       {followLoading
                         ? "Carregando..."
                         : isFollowing
-                          ? "Remover da panelinha"
-                          : "Adicionar à minha panelinha"}
+                        ? "Remover da panelinha"
+                        : "Adicionar à minha panelinha"}
                     </Button>
                   )}
 
                   {!isOwnProfile && (
-                    <Button
-                      variant="outline"
-                      size="2"
-                      onClick={handleStartChat}
-                      data-chat-button
-                    >
+                    <Button variant='outline' size='2' onClick={handleStartChat} data-chat-button>
                       Iniciar chat
                     </Button>
                   )}
                 </Flex>
               </Flex>
-              <div className="bio">
+              <div className='bio'>
                 <h4>Quem sou eu na fila do pão?</h4>
                 <p>
                   <i>{user?.bio || "Ainda não escreveu nada sobre si."}</i>
@@ -414,103 +305,81 @@ const UserPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="avaliacao-patologica">
-              <h4 className="patological-title">Avaliação Pato-lógica</h4>
+            <div className='avaliacao-patologica'>
+              <h4 className='patological-title'>Vote em quão pato-legal é esta pessoa</h4>
               {voteFeedback && (
-                <Text
-                  size="1"
-                  color="green"
-                  style={{ textAlign: "center", marginBottom: "0.5rem" }}
-                >
+                <Text size='1' color='green' style={{ textAlign: "center", marginBottom: "0.5rem" }}>
                   {voteFeedback}
                 </Text>
               )}
-              <Flex direction="column" gap="3">
-                <Flex align="center" gap="3">
-                  <Tooltip content="Patocinado - Vive aparecendo por aí. Deve estar em todas com contrato assinado.">
+              <Flex direction='column' gap='3'>
+                <Flex align='center' gap='3'>
+                  <Tooltip content='Antipato - Essa pessoa não é muito legal, melhor manter distância.'>
                     <img
                       src={patocinado}
-                      alt="Patocinado - Pato com óculos e celular"
-                      className={`avaliacao-img ${patologicalStats?.userVote === "patocinado" ? "voted" : ""}`}
-                      onClick={() => handlePatologicalVote("patocinado")}
+                      alt='Antipato - Pessoa não muito legal'
+                      className={`avaliacao-img ${patologicalStats?.userVote === "antipato" ? "voted" : ""}`}
+                      onClick={() => handlePatologicalVote("antipato")}
                       style={{
                         cursor: votingLoading ? "not-allowed" : "pointer",
                       }}
                     />
                   </Tooltip>
-                  <Tooltip content="Patocinado - Vive aparecendo por aí. Deve estar em todas com contrato assinado.">
-                    <Flex
-                      direction="column"
-                      gap="1"
-                      style={{ cursor: "pointer" }}
-                    >
-                      <Text size="2" weight="bold">
-                        Patocinado
+                  <Tooltip content='Antipato - Essa pessoa não é muito legal, melhor manter distância.'>
+                    <Flex direction='column' gap='1' style={{ cursor: "pointer" }}>
+                      <Text size='2' weight='bold'>
+                        Antipato
                       </Text>
-                      <Text size="1" color="gray">
-                        {patologicalStats
-                          ? `${patologicalStats.percentages.patocinado.toFixed(1)}%`
-                          : "0%"}
+                      <Text size='1' color='gray'>
+                        {patologicalStats ? `${patologicalStats.percentages.antipato.toFixed(1)}%` : "0%"}
                       </Text>
                     </Flex>
                   </Tooltip>
                 </Flex>
 
-                <Flex align="center" gap="3">
-                  <Tooltip content="Patoda vida - Parceiro de sempre. Topa tudo, até os planos duvidosos.">
+                <Flex align='center' gap='3'>
+                  <Tooltip content='Pato no tucupi - Pessoa bacana, dá pra conversar numa boa.'>
                     <img
                       src={patodavida}
-                      alt="Patodavida - Pato abraçando"
-                      className={`avaliacao-img ${patologicalStats?.userVote === "patodavida" ? "voted" : ""}`}
-                      onClick={() => handlePatologicalVote("patodavida")}
+                      alt='Pato no tucupi - Pessoa bacana'
+                      className={`avaliacao-img ${patologicalStats?.userVote === "pato_no_tucupi" ? "voted" : ""}`}
+                      onClick={() => handlePatologicalVote("pato_no_tucupi")}
                       style={{
                         cursor: votingLoading ? "not-allowed" : "pointer",
                       }}
                     />
                   </Tooltip>
-                  <Tooltip content="Patoda vida - Parceiro de sempre. Topa tudo, até os planos duvidosos.">
-                    <Flex
-                      direction="column"
-                      gap="1"
-                      style={{ cursor: "pointer" }}
-                    >
-                      <Text size="2" weight="bold">
-                        Patoda vida
+                  <Tooltip content='Pato no tucupi - Pessoa bacana, dá pra conversar numa boa.'>
+                    <Flex direction='column' gap='1' style={{ cursor: "pointer" }}>
+                      <Text size='2' weight='bold'>
+                        Pato no tucupi
                       </Text>
-                      <Text size="1" color="gray">
-                        {patologicalStats
-                          ? `${patologicalStats.percentages.patodavida.toFixed(1)}%`
-                          : "0%"}
+                      <Text size='1' color='gray'>
+                        {patologicalStats ? `${patologicalStats.percentages.pato_no_tucupi.toFixed(1)}%` : "0%"}
                       </Text>
                     </Flex>
                   </Tooltip>
                 </Flex>
 
-                <Flex align="center" gap="3">
-                  <Tooltip content="Patônimo - Acho que já vi antes por aí… ou será que não?">
+                <Flex align='center' gap='3'>
+                  <Tooltip content='Patostástico - Pessoa incrível, o tipo de amigo que todo mundo quer ter!'>
                     <img
                       src={patonimo}
-                      alt="Patonimo - Pato com lupa"
-                      className={`avaliacao-img ${patologicalStats?.userVote === "patonimo" ? "voted" : ""}`}
-                      onClick={() => handlePatologicalVote("patonimo")}
+                      alt='Patostástico - Pessoa incrível'
+                      className={`avaliacao-img ${patologicalStats?.userVote === "patotastico" ? "voted" : ""}`}
+                      onClick={() => handlePatologicalVote("patotastico")}
                       style={{
                         cursor: votingLoading ? "not-allowed" : "pointer",
                       }}
                     />
                   </Tooltip>
-                  <Tooltip content="Patônimo - Acho que já vi antes por aí… ou será que não?">
-                    <Flex
-                      direction="column"
-                      gap="1"
-                      style={{ cursor: "pointer" }}
-                    >
-                      <Text size="2" weight="bold">
-                        Patônimo
+                  <Tooltip content='Patostástico - Pessoa incrível, o tipo de amigo que todo mundo quer ter!'>
+                    <Flex direction='column' gap='1' style={{ cursor: "pointer" }}>
+                      <Text size='2' weight='bold'>
+                        Patostástico
                       </Text>
-                      <Text size="1" color="gray">
-                        {patologicalStats
-                          ? `${patologicalStats.percentages.patonimo.toFixed(1)}%`
-                          : "0%"}
+                      <Text size='1' color='gray'>
+                        {patologicalStats ? `${patologicalStats.percentages.patotastico.toFixed(1)}%` : "0%"}
                       </Text>
                     </Flex>
                   </Tooltip>
@@ -527,150 +396,73 @@ const UserPage: React.FC = () => {
                 </Button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedRelationship("Melhor amigo(a)")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Melhor amigo(a)")}>
                   Melhor amigo(a)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedRelationship("Colega de rolê")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Colega de rolê")}>
                   Colega de rolê
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedRelationship("Me deve dinheiro")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Me deve dinheiro")}>
                   Me deve dinheiro
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("To ficando (em segredo)")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("To ficando (em segredo)")}>
                   To ficando (em segredo)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Namorado(a) imaginário(a)")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Namorado(a) imaginário(a)")}>
                   Namorado(a) imaginário(a)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Meu contatinho das 23h")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Meu contatinho das 23h")}>
                   Meu contatinho das 23h
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedRelationship("Inimigo íntimo")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Inimigo íntimo")}>
                   Inimigo íntimo
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Só falo quando bebo")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Só falo quando bebo")}>
                   Só falo quando bebo
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Ex que virou amigo (ou não)")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Ex que virou amigo (ou não)")}>
                   Ex que virou amigo (ou não)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedRelationship("Rival de memes")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Rival de memes")}>
                   Rival de memes
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Crush da adolescência")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Crush da adolescência")}>
                   Crush da adolescência
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Mentor espiritual (sem saber)")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Mentor espiritual (sem saber)")}>
                   Mentor espiritual (sem saber)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Pessoa que stalkeio todo dia")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Pessoa que stalkeio todo dia")}>
                   Pessoa que stalkeio todo dia
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship(
-                      "Parente distante que finge que conhece",
-                    )
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Parente distante que finge que conhece")}>
                   Parente distante que finge que conhece
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Conselheiro amoroso (péssimo)")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Conselheiro amoroso (péssimo)")}>
                   Conselheiro amoroso (péssimo)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Amigo fake só pra subir a moral")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Amigo fake só pra subir a moral")}>
                   Amigo fake só pra subir a moral
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedRelationship("Me ignora no zap")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Me ignora no zap")}>
                   Me ignora no zap
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Só tá aqui pela fofoca")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Só tá aqui pela fofoca")}>
                   Só tá aqui pela fofoca
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship(
-                      "Parceiro de maratona de série (sem compromisso)",
-                    )
-                  }
+                  onSelect={() => setSelectedRelationship("Parceiro de maratona de série (sem compromisso)")}
                 >
                   Parceiro de maratona de série (sem compromisso)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Já brigamos no Twitter")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Já brigamos no Twitter")}>
                   Já brigamos no Twitter
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedRelationship("Me influenciou a fazer merda")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("Me influenciou a fazer merda")}>
                   Me influenciou a fazer merda
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedRelationship("")}
-                  color="red"
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedRelationship("")} color='red'>
                   Não é nada pra mim
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
@@ -679,134 +471,70 @@ const UserPage: React.FC = () => {
             <DropdownMenu.Root>
               <DropdownMenu.Trigger>
                 <Button variant={selectedThought ? "solid" : "outline"}>
-                  {selectedThought ||
-                    "🤔 O que você acha que é pra essa pessoa"}
+                  {selectedThought || "🤔 O que você acha que é pra essa pessoa"}
                   <DropdownMenu.TriggerIcon />
                 </Button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("Um amor platônico")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Um amor platônico")}>
                   Um amor platônico
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("Só mais um número")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Só mais um número")}>
                   Só mais um número
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("O motivo do bloqueio")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("O motivo do bloqueio")}>
                   O motivo do bloqueio
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedThought(
-                      "A melhor coisa que já aconteceu (óbvio)",
-                    )
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("A melhor coisa que já aconteceu (óbvio)")}>
                   A melhor coisa que já aconteceu (óbvio)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("Amizade por pena")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Amizade por pena")}>
                   Amizade por pena
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedThought("Aquele que ela finge que não conhece")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Aquele que ela finge que não conhece")}>
                   Aquele que ela finge que não conhece
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedThought(
-                      "Exemplo de superação (por aguentar ela)",
-                    )
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Exemplo de superação (por aguentar ela)")}>
                   Exemplo de superação (por aguentar ela)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("O stalker número 1")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("O stalker número 1")}>
                   O stalker número 1
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("Um erro de verão")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Um erro de verão")}>
                   Um erro de verão
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("Backup do backup")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Backup do backup")}>
                   Backup do backup
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedThought("O conselheiro não solicitado")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("O conselheiro não solicitado")}>
                   O conselheiro não solicitado
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedThought("O que dá bom dia no grupo")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("O que dá bom dia no grupo")}>
                   O que dá bom dia no grupo
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("A treta do passado")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("A treta do passado")}>
                   A treta do passado
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedThought("Um contato útil (quando convém)")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Um contato útil (quando convém)")}>
                   Um contato útil (quando convém)
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedThought("Só entra em contato na TPM")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Só entra em contato na TPM")}>
                   Só entra em contato na TPM
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("A desgraça favorita")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("A desgraça favorita")}>
                   A desgraça favorita
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedThought("Fantasma que volta a cada 6 meses")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Fantasma que volta a cada 6 meses")}>
                   Fantasma que volta a cada 6 meses
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    setSelectedThought("Influencer da panelinha dela")
-                  }
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Influencer da panelinha dela")}>
                   Influencer da panelinha dela
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("Já fui bloqueado 3x")}
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("Já fui bloqueado 3x")}>
                   Já fui bloqueado 3x
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
-                <DropdownMenu.Item
-                  onSelect={() => setSelectedThought("")}
-                  color="red"
-                >
+                <DropdownMenu.Item onSelect={() => setSelectedThought("")} color='red'>
                   Não é nada pra mim
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
@@ -814,23 +542,15 @@ const UserPage: React.FC = () => {
           </Flex>
         </Card>
       </section>
-      <section className="feed">
+      <section className='feed'>
         {posts.length === 0 ? (
-          <div className="no-content">
+          <div className='no-content'>
             <span>😢</span>
-            <p>
-              Este usuário ainda não postou nada, provavelmente ele está vivendo
-              e sendo mais feliz do que você.
-            </p>
+            <p>Este usuário ainda não postou nada, provavelmente ele está vivendo e sendo mais feliz do que você.</p>
           </div>
         ) : (
           posts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onPostDeleted={handlePostDeleted}
-              currentUserId={user?.id}
-            />
+            <PostCard key={post.id} post={post} onPostDeleted={handlePostDeleted} currentUserId={user?.id} />
           ))
         )}
       </section>
