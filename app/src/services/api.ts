@@ -34,8 +34,10 @@ class ApiClient {
     const response = await fetch(url, config);
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Network error" }));
-      throw new Error(error.message || "Request failed");
+      const error = await response.json().catch(() => ({ error: "Network error" }));
+      const apiError = new Error(error.error || error.message || "Request failed");
+      (apiError as any).response = error;
+      throw apiError;
     }
 
     return response.json();
@@ -172,6 +174,25 @@ class ApiClient {
 
   async getChatRoomMessages(room_id: number, page: number = 1, limit: number = 1000): Promise<ChatMessage[]> {
     return this.request<ChatMessage[]>(`/chat/rooms/${room_id}/messages?page=${page}&limit=${limit}`);
+  }
+
+  async createGrandmaTestimonial(
+    targetUserId: number,
+    theme: string,
+    testimonialText: string
+  ): Promise<{ message: string; testimonial: any }> {
+    return this.request<{ message: string; testimonial: any }>("/testimonials", {
+      method: "POST",
+      body: JSON.stringify({
+        target_user_id: targetUserId,
+        theme,
+        testimonial_text: testimonialText,
+      }),
+    });
+  }
+
+  async getGrandmaTestimonials(userId: number): Promise<{ testimonials: any[]; count: number }> {
+    return this.request<{ testimonials: any[]; count: number }>(`/testimonials/user/${userId}`);
   }
 }
 

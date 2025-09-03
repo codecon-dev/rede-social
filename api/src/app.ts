@@ -6,6 +6,7 @@ import { config } from "./config/config";
 import { errorHandler } from "./middleware/errorHandler";
 import { authRoutes } from "./routes/authRoutes";
 import { chatRoutes } from "./routes/chatRoutes";
+import { grandmaTestimonialRoutes } from "./routes/grandmaTestimonialRoutes";
 import { postRoutes } from "./routes/postRoutes";
 import { userRoutes } from "./routes/userRoutes";
 
@@ -36,6 +37,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/testimonials", grandmaTestimonialRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });

@@ -11,6 +11,11 @@ import { useFollows } from "../contexts/FollowsContext";
 import patocinado from "../assets/patocinado.png";
 import patodavida from "../assets/patodavida.png";
 import patonimo from "../assets/patonimo.png";
+import gif1 from "../assets/grandma-gifs/gif-1.gif";
+import gif2 from "../assets/grandma-gifs/gif-2.gif";
+import gif3 from "../assets/grandma-gifs/gif-3.gif";
+import gif4 from "../assets/grandma-gifs/gif-4.gif";
+import gif5 from "../assets/grandma-gifs/gif-5.gif";
 
 const mockUsers: Record<string, User> = {
   vtnorton: {
@@ -75,6 +80,75 @@ const UserPage: React.FC = () => {
   const [votingLoading, setVotingLoading] = useState<boolean>(false);
   const [voteFeedback, setVoteFeedback] = useState<string>("");
   const { refreshDbFollowsCount } = useFollows();
+
+  // Estados para depoimentos de vovozinha
+  const [selectedTheme, setSelectedTheme] = useState<string>("");
+  const [testimonialText, setTestimonialText] = useState<string>("");
+  const [testimonialError, setTestimonialError] = useState<string>("");
+  const [submittingTestimonial, setSubmittingTestimonial] = useState<boolean>(false);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState<boolean>(false);
+
+  // Função para carregar depoimentos
+  const loadTestimonials = useCallback(async () => {
+    if (!user) return;
+
+    setLoadingTestimonials(true);
+    try {
+      const response = await apiClient.getGrandmaTestimonials(user.id);
+      setTestimonials(response.testimonials);
+    } catch (error) {
+      console.error("Error loading testimonials:", error);
+    } finally {
+      setLoadingTestimonials(false);
+    }
+  }, [user]);
+
+  // Função para submeter depoimento
+  const handleSubmitTestimonial = async () => {
+    if (!selectedTheme) {
+      setTestimonialError("Escolha um tema da vovó primeiro!");
+      return;
+    }
+
+    if (!testimonialText.trim()) {
+      setTestimonialError("Escreva alguma coisa, meu bem!");
+      return;
+    }
+
+    if (!user) {
+      setTestimonialError("Usuário não encontrado!");
+      return;
+    }
+
+    setSubmittingTestimonial(true);
+    setTestimonialError("");
+
+    try {
+      const response = await apiClient.createGrandmaTestimonial(user.id, selectedTheme, testimonialText);
+
+      // Limpar form
+      setTestimonialText("");
+      setSelectedTheme("");
+
+      // Mostrar sucesso
+      setTestimonialError("");
+      alert(response.message);
+
+      // Recarregar depoimentos
+      await loadTestimonials();
+    } catch (error: any) {
+      console.log(error);
+      const errorMessage =
+        error.response?.error ||
+        error.response?.message ||
+        error.message ||
+        "Erro ao enviar depoimento. Tente novamente!";
+      setTestimonialError(errorMessage);
+    } finally {
+      setSubmittingTestimonial(false);
+    }
+  };
 
   const loadUser = useCallback(async () => {
     if (!username) return;
@@ -202,8 +276,9 @@ const UserPage: React.FC = () => {
       loadTimeline();
       loadFollowStatus();
       loadPatologicalStats();
+      loadTestimonials();
     }
-  }, [user, loadTimeline, loadFollowStatus, loadPatologicalStats]);
+  }, [user, loadTimeline, loadFollowStatus, loadPatologicalStats, loadTestimonials]);
 
   if (loading) {
     return (
@@ -542,18 +617,118 @@ const UserPage: React.FC = () => {
           </Flex>
         </Card>
       </section>
-      <section className='feed'>
-        {posts.length === 0 ? (
-          <div className='no-content'>
-            <span>😢</span>
-            <p>Este usuário ainda não postou nada, provavelmente ele está vivendo e sendo mais feliz do que você.</p>
-          </div>
-        ) : (
-          posts.map((post) => (
-            <PostCard key={post.id} post={post} onPostDeleted={handlePostDeleted} currentUserId={user?.id} />
-          ))
-        )}
-      </section>
+      <div className='user-page-columns'>
+        <section className='posts-column'>
+          <h3>Posts do usuário</h3>
+          {posts.length === 0 ? (
+            <div className='no-content'>
+              <span>😢</span>
+              <p>Este usuário ainda não postou nada, provavelmente ele está vivendo e sendo mais feliz do que você.</p>
+            </div>
+          ) : (
+            posts.map((post) => (
+              <PostCard key={post.id} post={post} onPostDeleted={handlePostDeleted} currentUserId={user?.id} />
+            ))
+          )}
+        </section>
+
+        <section className='testimonials-column'>
+          <h3>Depoimentos de Vovozinha 👵💕</h3>
+          <Card className='grandma-testimonials'>
+            <div className='testimonial-form'>
+              <p className='grandma-instructions'>
+                Escreva um depoimento carinhoso como sua vovózinha faria! Use palavrinhas fofas como: fofinho, querido,
+                benzinho, lindeza, amorzinho, gracinha, docinho, coraçãozinho, anjinho, florzinha...
+              </p>
+
+              <div className='theme-selection'>
+                <h4>Escolha o tema da vovó:</h4>
+                <div className='theme-gifs'>
+                  {[
+                    { id: "1", gif: gif1, alt: "Vovozinha 1" },
+                    { id: "2", gif: gif2, alt: "Vovozinha 2" },
+                    { id: "3", gif: gif3, alt: "Vovozinha 3" },
+                    { id: "4", gif: gif4, alt: "Vovozinha 4" },
+                    { id: "5", gif: gif5, alt: "Vovozinha 5" },
+                  ].map((theme) => (
+                    <div
+                      key={theme.id}
+                      className={`theme-option ${selectedTheme === theme.id ? "selected" : ""}`}
+                      onClick={() => setSelectedTheme(theme.id)}
+                    >
+                      <img src={theme.gif} alt={theme.alt} />
+                      <span>Vovó tema {theme.id}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <textarea
+                placeholder='Oi meu docinho...'
+                className='testimonial-input'
+                rows={4}
+                value={testimonialText}
+                onChange={(e) => setTestimonialText(e.target.value)}
+              />
+
+              {testimonialError && <div className='testimonial-error'>{testimonialError}</div>}
+
+              <Button className='submit-testimonial' onClick={handleSubmitTestimonial} disabled={submittingTestimonial}>
+                {submittingTestimonial ? "Enviando..." : "Enviar depoimento da vovó 👵💝"}
+              </Button>
+
+              <div className='testimonial-rules'>
+                <small>
+                  ⚠️ Seu depoimento deve ter pelo menos 2 palavrinhas carinhosas!
+                  <br />
+                  📝 Começará com "Oi meu docinho..." e terminará com uma bênção especial!
+                  <br />
+                  💕 Precisa de pelo menos 3 emojis de coração, florzinha ou beijinho no final!
+                </small>
+              </div>
+            </div>
+
+            <div className='testimonials-list'>
+              <h4>Depoimentos recebidos:</h4>
+              {loadingTestimonials ? (
+                <div className='testimonials-loading'>
+                  <span>⏳</span>
+                  <p>Carregando depoimentos das vovozinhas...</p>
+                </div>
+              ) : testimonials.length === 0 ? (
+                <div className='no-testimonials'>
+                  <span>👵</span>
+                  <p>Ainda não há depoimentos de vovozinha para este usuário. Seja o primeiro a mandar um carinho!</p>
+                </div>
+              ) : (
+                <div className='testimonials-items'>
+                  {testimonials.map((testimonial, index) => (
+                    <div key={testimonial.id || index} className='testimonial-item'>
+                      <div className='testimonial-header'>
+                        <div className='testimonial-author'>
+                          <strong>@{testimonial.author_username}</strong>
+                          <small>{new Date(testimonial.created_at).toLocaleDateString("pt-BR")}</small>
+                        </div>
+                      </div>
+                      <div className='testimonial-content'>
+                        <p>
+                          {testimonial.final_testimonial}
+
+                          <img
+                            src={[gif1, gif2, gif3, gif4, gif5][parseInt(testimonial.theme) - 1]}
+                            alt={`Vovó tema ${testimonial.theme}`}
+                            className='testimonial-theme-gif'
+                          />
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Card>
+        </section>
+      </div>
     </>
   );
 };
