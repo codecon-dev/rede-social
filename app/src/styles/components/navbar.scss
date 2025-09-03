@@ -1,42 +1,45 @@
 header {
-	background: var(--gray-2);
-	border-bottom: 1px solid var(--gray-6);
-	padding: .8rem 1rem 1rem;
+  background: var(--gray-2);
+  border-bottom: 1px solid var(--gray-6);
+  padding: 0.8rem 1rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 
-	.navbar-top {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		height: 80px;
+  .navbar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
 
-		.navbar-search {
-			margin-left: auto;
-			
-			.search-form {
-				.search-input {
-					min-width: 300px;
-				}
-			}
-		}
-	}
+    .navbar-search {
+      margin-left: auto;
+
+      .search-form {
+        .search-input {
+          min-width: 300px;
+        }
+      }
+    }
+  }
 }
 
 .logo {
-	display: flex;
-	color: var(--grass-10);
-	align-items: center;
-	cursor: pointer;
+  display: flex;
+  color: var(--grass-10);
+  align-items: center;
+  cursor: pointer;
 
-	span {
-		font-size: 2rem;
-	}
+  span {
+    font-size: 2rem;
+  }
 
-	h1 {
-		font-size: 1.5rem;
-		line-height: 1.5rem;
-		font-weight: 600;
-		margin-left: .5rem;
-		color: var(--grass-10);
-		margin-bottom: 0;
-	}
+  h1 {
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    color: var(--grass-10);
+    margin-bottom: 0;
+  }
 }

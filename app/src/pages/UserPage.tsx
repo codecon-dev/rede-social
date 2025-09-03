@@ -16,6 +16,7 @@ import gif2 from "../assets/grandma-gifs/gif-2.gif";
 import gif3 from "../assets/grandma-gifs/gif-3.gif";
 import gif4 from "../assets/grandma-gifs/gif-4.gif";
 import gif5 from "../assets/grandma-gifs/gif-5.gif";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const mockUsers: Record<string, User> = {
   vtnorton: {
@@ -80,6 +81,8 @@ const UserPage: React.FC = () => {
   const [votingLoading, setVotingLoading] = useState<boolean>(false);
   const [voteFeedback, setVoteFeedback] = useState<string>("");
   const { refreshDbFollowsCount } = useFollows();
+
+  usePageTitle(user ? `${user.firstName ? `${user.firstName} ${user.lastName || ''}` : `@${user.username}`} - Rede Social` : 'Usuário - Rede Social');
 
   // Estados para depoimentos de vovozinha
   const [selectedTheme, setSelectedTheme] = useState<string>("");

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useFollows } from "../contexts/FollowsContext";
 import { apiClient } from "../services/api";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 interface PanelinhaMember {
   id: number;
@@ -25,6 +26,8 @@ const PanelinhaPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [unfollowLoading, setUnfollowLoading] = useState<number | null>(null);
   const { refreshDbFollowsCount } = useFollows();
+
+  usePageTitle('Panelinha - Rede Social');
 
   const loadPanelinhaMembers = useCallback(async () => {
     if (!currentUser) return;

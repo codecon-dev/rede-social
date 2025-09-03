@@ -9,11 +9,14 @@ import type { PatologicalVoteStats } from "../types";
 import patocinado from "../assets/patocinado.png";
 import patodavida from "../assets/patodavida.png";
 import patonimo from "../assets/patonimo.png";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [editing, setEditing] = useState(false);
+  
+  usePageTitle(`${user?.firstName ? `${user.firstName} ${user.lastName || ''}` : `@${user?.username}`} - Rede Social`);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");

@@ -4,6 +4,7 @@ import { apiClient } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import PostCard from "../components/PostCard";
 import CreatePost from "../components/CreatePost";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const HomePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -12,6 +13,8 @@ const HomePage: React.FC = () => {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const { user } = useAuth();
+  
+  usePageTitle('Início - Rede Social');
 
   const loadTimeline = useCallback(async () => {
     try {
