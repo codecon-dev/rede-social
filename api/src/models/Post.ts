@@ -102,6 +102,30 @@ export class PostModel {
   }
 
   /**
+   * Gets posts from all users randomly.
+   *
+   * @param limit - The maximum number of posts to return.
+   * @param offset - The offset for pagination.
+   * @returns An array of Post objects with user information from all users.
+   */
+  static async getAllPostsRandom(
+    limit: number = 20,
+    offset: number = 0,
+  ): Promise<Post[]> {
+    const query = `
+      SELECT p.id, p.user_id, p.content, p.image_url, p.likes_count, p.hates_count, p.comments_count, p.created_at, p.updated_at,
+             u.id as user_id, u.username, u.first_name, u.last_name, u.avatar_url, u.is_verified
+      FROM posts p
+      JOIN users u ON p.user_id = u.id
+      ORDER BY RANDOM()
+      LIMIT $1 OFFSET $2
+    `;
+
+    const result = await pool.query(query, [limit, offset]);
+    return result.rows.map((row) => this.mapRowToPostWithUser(row));
+  }
+
+  /**
    * Updates a post's content.
    *
    * @param id - The ID of the post to update.

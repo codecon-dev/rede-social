@@ -24,10 +24,7 @@ class ApiClient {
     };
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {},
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     const config: RequestInit = {
       headers: this.getAuthHeaders(),
@@ -37,10 +34,10 @@ class ApiClient {
     const response = await fetch(url, config);
 
     if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({ message: "Network error" }));
-      throw new Error(error.message || "Request failed");
+      const error = await response.json().catch(() => ({ error: "Network error" }));
+      const apiError = new Error(error.error || error.message || "Request failed");
+      (apiError as any).response = error;
+      throw apiError;
     }
 
     return response.json();
@@ -66,6 +63,10 @@ class ApiClient {
 
   async getTimeline(): Promise<PostPaged> {
     return this.request<PostPaged>("/users/timeline");
+  }
+
+  async getAllPostsRandom(): Promise<PostPaged> {
+    return this.request<PostPaged>("/posts/random");
   }
 
   async getUserTimeline(userId: number): Promise<PostPaged> {
@@ -116,32 +117,20 @@ class ApiClient {
     });
   }
 
-  async followUser(
-    userId: number,
-  ): Promise<{ message: string; isFollowing: boolean }> {
-    return this.request<{ message: string; isFollowing: boolean }>(
-      `/users/${userId}/follow`,
-      {
-        method: "POST",
-      },
-    );
+  async followUser(userId: number): Promise<{ message: string; isFollowing: boolean }> {
+    return this.request<{ message: string; isFollowing: boolean }>(`/users/${userId}/follow`, {
+      method: "POST",
+    });
   }
 
-  async unfollowUser(
-    userId: number,
-  ): Promise<{ message: string; isFollowing: boolean }> {
-    return this.request<{ message: string; isFollowing: boolean }>(
-      `/users/${userId}/follow`,
-      {
-        method: "DELETE",
-      },
-    );
+  async unfollowUser(userId: number): Promise<{ message: string; isFollowing: boolean }> {
+    return this.request<{ message: string; isFollowing: boolean }>(`/users/${userId}/follow`, {
+      method: "DELETE",
+    });
   }
 
   async checkFollowStatus(userId: number): Promise<{ isFollowing: boolean }> {
-    return this.request<{ isFollowing: boolean }>(
-      `/users/${userId}/follow-status`,
-    );
+    return this.request<{ isFollowing: boolean }>(`/users/${userId}/follow-status`);
   }
 
   async getPanelinhaMembersCount(): Promise<{ count: number }> {
@@ -160,23 +149,16 @@ class ApiClient {
 
   async votePatological(
     targetUserId: number,
-    voteType: "patocinado" | "patodavida" | "patonimo",
+    voteType: "antipato" | "pato_no_tucupi" | "patotastico"
   ): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(
-      `/users/${targetUserId}/patological-vote`,
-      {
-        method: "POST",
-        body: JSON.stringify({ voteType }),
-      },
-    );
+    return this.request<{ success: boolean; message: string }>(`/users/${targetUserId}/patological-vote`, {
+      method: "POST",
+      body: JSON.stringify({ voteType }),
+    });
   }
 
-  async getPatologicalVoteStats(
-    targetUserId: number,
-  ): Promise<PatologicalVoteStats> {
-    return this.request<PatologicalVoteStats>(
-      `/users/${targetUserId}/patological-stats`,
-    );
+  async getPatologicalVoteStats(targetUserId: number): Promise<PatologicalVoteStats> {
+    return this.request<PatologicalVoteStats>(`/users/${targetUserId}/patological-stats`);
   }
 
   async createChatRoom(data: CreateChatRoomRequest) {
@@ -190,14 +172,27 @@ class ApiClient {
     return this.request<ChatRoom[]>("/chat/rooms");
   }
 
-  async getChatRoomMessages(
-    room_id: number,
-    page: number = 1,
-    limit: number = 1000,
-  ): Promise<ChatMessage[]> {
-    return this.request<ChatMessage[]>(
-      `/chat/rooms/${room_id}/messages?page=${page}&limit=${limit}`,
-    );
+  async getChatRoomMessages(room_id: number, page: number = 1, limit: number = 1000): Promise<ChatMessage[]> {
+    return this.request<ChatMessage[]>(`/chat/rooms/${room_id}/messages?page=${page}&limit=${limit}`);
+  }
+
+  async createGrandmaTestimonial(
+    targetUserId: number,
+    theme: string,
+    testimonialText: string
+  ): Promise<{ message: string; testimonial: any }> {
+    return this.request<{ message: string; testimonial: any }>("/testimonials", {
+      method: "POST",
+      body: JSON.stringify({
+        target_user_id: targetUserId,
+        theme,
+        testimonial_text: testimonialText,
+      }),
+    });
+  }
+
+  async getGrandmaTestimonials(userId: number): Promise<{ testimonials: any[]; count: number }> {
+    return this.request<{ testimonials: any[]; count: number }>(`/testimonials/user/${userId}`);
   }
 }
 

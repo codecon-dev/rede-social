@@ -1,0 +1,65 @@
+.sidebar {
+  width: 250px;
+  background: var(--gray-2);
+  border-right: 1px solid var(--gray-6);
+  height: calc(100vh - 80px);
+  padding: 1rem 0;
+  position: sticky;
+  top: 110px;
+  padding: 20px;
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 1rem;
+    margin-bottom: 20px;
+
+    .sidebar-button {
+      width: 100%;
+      justify-content: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-3);
+
+      &:hover {
+        background: var(--gray-3);
+      }
+
+      .members-count {
+        background: var(--grass-9);
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: auto;
+        min-width: 20px;
+      }
+
+      &.logout-button {
+        margin-top: auto;
+        color: var(--red-9);
+
+        &:hover {
+          background: var(--red-a3);
+          color: var(--red-10);
+        }
+      }
+    }
+  }
+}
+
+.app-layout {
+  display: flex;
+
+  .main-content {
+    flex: 1;
+    min-height: calc(100vh - 80px);
+    padding: 40px;
+  }
+}

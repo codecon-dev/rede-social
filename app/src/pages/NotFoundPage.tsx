@@ -2,9 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, Flex } from '@radix-ui/themes';
 import { LuArrowLeft, LuSearchX } from 'react-icons/lu';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const NotFoundPage: React.FC = () => {
 	const navigate = useNavigate();
+	usePageTitle('Página não encontrada - Rede Social');
 
 	return (
 		<section className="not-found">

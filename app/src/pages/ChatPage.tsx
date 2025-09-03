@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChatSidebar } from "../components/ChatSidebar";
 import { ChatWindow } from "../components/ChatWindow";
 import { ChatProvider, useChat } from "../contexts/ChatContext";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -24,6 +25,8 @@ const ChatPage: React.FC = () => {
   const { currentRoom, setCurrentRoomById, setCurrentRoom } = useChat();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  
+  usePageTitle(currentRoom ? `Chat com ${currentRoom.otherUser.firstName || currentRoom.otherUser.username} - Rede Social` : 'Chat - Rede Social');
 
   const handleBackToSidebar = () => {
     setCurrentRoom(null);

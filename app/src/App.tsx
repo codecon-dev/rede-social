@@ -10,6 +10,7 @@ import PanelinhaPage from "./pages/PanelinhaPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import "./styles/index.scss";
 import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
 import ChatPage from "./pages/ChatPage";
 
 const AppContent: React.FC = () => {
@@ -29,18 +30,21 @@ const AppContent: React.FC = () => {
 
   return (
     <>
-      <Navbar user={user} logout={logout} />
-      <div className="wrapper">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/user/:username" element={<UserPage />} />
-          <Route path="/panelinha" element={<PanelinhaPage />} />
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/chat/:room_id" element={<ChatPage />} />
-          <Route path="/404" element={<NotFoundPage />} />
-          <Route path="*" element={<Navigate to="/404" replace />} />
-        </Routes>
+      <Navbar user={user} />
+      <div className="app-layout">
+        <Sidebar user={user} logout={logout} />
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/user/:username" element={<UserPage />} />
+            <Route path="/panelinha" element={<PanelinhaPage />} />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/chat/:room_id" element={<ChatPage />} />
+            <Route path="/404" element={<NotFoundPage />} />
+            <Route path="*" element={<Navigate to="/404" replace />} />
+          </Routes>
+        </div>
       </div>
     </>
   );

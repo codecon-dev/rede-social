@@ -7,12 +7,14 @@ import {
   toggleLike,
   createPostValidation,
   updatePostValidation,
-  toggleHate
+  toggleHate,
+  getAllPostsRandom
 } from '../controllers/postController';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
+router.get('/random', getAllPostsRandom);
 router.post('/', authenticateToken, createPostValidation, createPost);
 router.get('/:id', getPost);
 router.put('/:id', authenticateToken, updatePostValidation, updatePost);

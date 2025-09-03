@@ -222,3 +222,32 @@ export const toggleHate = async (req: AuthRequest, res: Response): Promise<void>
     res.status(500).json({ error: 'Failed to toggle like' });
   }
 };
+
+/**
+ * Handles the retrieval of random posts from all users.
+ * Returns posts from all users in random order with pagination.
+ *
+ * @param {Request} req - The request object containing pagination parameters.
+ * @param {Response} res - The response object to send the result.
+ */
+export const getAllPostsRandom = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+    const offset = (page - 1) * limit;
+
+    const posts = await PostModel.getAllPostsRandom(limit, offset);
+
+    res.json({
+      posts,
+      pagination: {
+        page,
+        limit,
+        hasMore: posts.length === limit
+      }
+    });
+  } catch (error) {
+    console.error('Get all posts random error:', error);
+    res.status(500).json({ error: 'Failed to get posts' });
+  }
+};

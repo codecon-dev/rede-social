@@ -9,6 +9,7 @@ export interface User {
   isVerified: boolean;
   createdAt: string;
   updatedAt: string;
+  isMockUser?: boolean; // Para identificar usuários mockados
 }
 
 export interface Post {
@@ -73,19 +74,19 @@ export interface PatologicalVote {
   id: number;
   voterId: number;
   targetUserId: number;
-  voteType: "patocinado" | "patodavida" | "patonimo";
+  voteType: "antipato" | "pato_no_tucupi" | "patotastico";
   createdAt: string;
 }
 
 export interface PatologicalVoteStats {
-  patocinado: number;
-  patodavida: number;
-  patonimo: number;
+  antipato: number;
+  pato_no_tucupi: number;
+  patotastico: number;
   total: number;
   percentages: {
-    patocinado: number;
-    patodavida: number;
-    patonimo: number;
+    antipato: number;
+    pato_no_tucupi: number;
+    patotastico: number;
   };
   userVote?: string;
 }

@@ -84,7 +84,30 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS patological_votes (
+  id SERIAL PRIMARY KEY,
+  voter_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  voted_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  vote_type VARCHAR(20) NOT NULL CHECK (vote_type IN ('antipato', 'pato_no_tucupi', 'patotastico')),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(voter_id, voted_user_id)
+);
+
+CREATE TABLE IF NOT EXISTS grandma_testimonials (
+  id SERIAL PRIMARY KEY,
+  author_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  target_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  theme VARCHAR(10) NOT NULL,
+  original_text TEXT NOT NULL,
+  final_testimonial TEXT NOT NULL,
+  blessing VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at);
+CREATE INDEX IF NOT EXISTS idx_patological_votes_voted_user ON patological_votes(voted_user_id);
+CREATE INDEX IF NOT EXISTS idx_grandma_testimonials_target_user ON grandma_testimonials(target_user_id);

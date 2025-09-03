@@ -1,0 +1,394 @@
+.profile {
+  .follow-button {
+    margin-top: 1rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  button[data-follow-button] {
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    align-self: flex-start;
+    margin-top: 0.25rem;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .avaliacao-patologica {
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    background: var(--gray-1);
+    border-radius: 12px;
+    border: 1px solid var(--gray-6);
+    min-width: 250px;
+
+    // Para UserPage (canto direito)
+    .profile-card & {
+      align-self: flex-start;
+      margin-left: auto;
+    }
+
+    .avaliacao-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: transparent;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      padding: 3px;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      &.voted {
+        border: 2px solid var(--green-9);
+        background: var(--green-2);
+        box-shadow: 0 0 0 2px var(--green-6);
+      }
+    }
+
+    h4 {
+      margin-bottom: 1rem;
+      color: var(--gray-12);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .patological-title {
+      color: var(--green-11) !important;
+      font-weight: 700;
+      text-align: center;
+    }
+  }
+
+  // Seção específica para o perfil do usuário logado
+  .profile-patological-section {
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    max-width: fit-content;
+
+    .avaliacao-img {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      object-fit: contain;
+      background: transparent;
+      transition: all 0.2s ease;
+      padding: 2px;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+  // Estilos para os tooltips da avaliação patológica
+  [data-radix-tooltip-content] {
+    max-width: 250px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    text-align: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--gray-12);
+    color: var(--gray-1);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.user-page-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+
+  .posts-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    h3 {
+      color: var(--gray-12);
+    }
+  }
+
+  .testimonials-column {
+    h3 {
+      margin-bottom: 1rem;
+      color: var(--gray-12);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .grandma-testimonials {
+      padding: 1.5rem;
+
+      .testimonial-form {
+        margin-bottom: 2rem;
+
+        .grandma-instructions {
+          background: var(--yellow-2);
+          border: 1px solid var(--yellow-6);
+          border-radius: 8px;
+          padding: 1rem;
+          margin-bottom: 1.5rem;
+          font-size: 0.875rem;
+          line-height: 1.4;
+          color: var(--gray-12);
+        }
+
+        .theme-selection {
+          margin-bottom: 1.5rem;
+
+          h4 {
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--gray-11);
+          }
+
+          .theme-gifs {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+
+            .theme-option {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              padding: 0.5rem;
+              border: 2px solid var(--gray-6);
+              border-radius: 8px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              background: var(--gray-1);
+
+              &:hover {
+                border-color: var(--gray-8);
+                background: var(--gray-2);
+              }
+
+              &.selected {
+                border-color: var(--green-8);
+                background: var(--green-2);
+                box-shadow: 0 0 0 2px var(--green-6);
+              }
+
+              img {
+                width: 40px;
+                height: 40px;
+                border-radius: 4px;
+                object-fit: cover;
+                margin-bottom: 0.25rem;
+              }
+
+              span {
+                font-size: 0.75rem;
+                text-align: center;
+                color: var(--gray-11);
+                font-weight: 500;
+              }
+            }
+          }
+        }
+
+        .testimonial-input {
+          width: 100%;
+          min-height: 100px;
+          padding: 0.75rem;
+          border: 1px solid var(--gray-6);
+          border-radius: 8px;
+          font-family: inherit;
+          font-size: 0.875rem;
+          line-height: 1.4;
+          resize: vertical;
+          margin-bottom: 1rem;
+          background: var(--gray-1);
+
+          &:focus {
+            outline: none;
+            border-color: var(--green-8);
+            box-shadow: 0 0 0 2px var(--green-6);
+          }
+
+          &::placeholder {
+            color: var(--gray-9);
+          }
+        }
+
+        .testimonial-error {
+          background: var(--red-2);
+          border: 1px solid var(--red-6);
+          color: var(--red-11);
+          padding: 0.75rem;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+        }
+
+        .submit-testimonial {
+          width: 100%;
+          margin-bottom: 1rem;
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+
+        .testimonial-rules {
+          background: var(--blue-2);
+          border: 1px solid var(--blue-6);
+          border-radius: 8px;
+          padding: 0.75rem;
+
+          small {
+            color: var(--blue-11);
+            line-height: 1.4;
+          }
+        }
+      }
+
+      .testimonials-list {
+        h4 {
+          margin-bottom: 1rem;
+          color: var(--gray-12);
+          font-size: 0.875rem;
+        }
+
+        .no-testimonials {
+          text-align: center;
+          padding: 2rem 1rem;
+          color: var(--gray-9);
+
+          span {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+          }
+
+          p {
+            font-size: 0.875rem;
+            line-height: 1.4;
+          }
+        }
+
+        .testimonials-items {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .testimonial-item {
+          background: var(--gray-2);
+          border: 1px solid var(--gray-6);
+          border-radius: 12px;
+          padding: 1rem;
+          transition: all 0.2s ease;
+
+          &:hover {
+            border-color: var(--gray-7);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          }
+
+          .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+
+            .testimonial-author {
+              display: flex;
+              flex-direction: column;
+              gap: 0.125rem;
+
+              strong {
+                font-size: 0.875rem;
+                color: var(--gray-12);
+                font-weight: 600;
+              }
+
+              small {
+                font-size: 0.75rem;
+                color: var(--gray-9);
+              }
+            }
+          }
+
+          .testimonial-content {
+            p {
+              font-size: 0.875rem;
+              line-height: 1.5;
+              color: var(--gray-11);
+              margin: 0;
+              padding: 0.5rem;
+              background: var(--gray-1);
+              border-radius: 8px;
+              border-left: 3px solid var(--green-8);
+              font-style: italic;
+
+              .testimonial-theme-gif {
+                margin-top: 20px;
+              }
+            }
+          }
+        }
+
+        .testimonials-loading {
+          text-align: center;
+          padding: 2rem 1rem;
+          color: var(--gray-9);
+
+          span {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+          }
+
+          p {
+            font-size: 0.875rem;
+            line-height: 1.4;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+
+    .testimonials-column {
+      .grandma-testimonials .testimonial-form .theme-selection .theme-gifs {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  }
+
+  @media (max-width: 640px) {
+    .testimonials-column {
+      .grandma-testimonials .testimonial-form .theme-selection .theme-gifs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  }
+}

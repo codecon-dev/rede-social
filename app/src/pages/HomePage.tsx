@@ -1,26 +1,42 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import type { Post } from '../types';
-import { apiClient } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
-import PostCard from '../components/PostCard';
-import CreatePost from '../components/CreatePost';
+import React, { useState, useEffect, useCallback } from "react";
+import type { Post } from "../types";
+import { apiClient } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
+import PostCard from "../components/PostCard";
+import CreatePost from "../components/CreatePost";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const HomePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   // const [postsPagination, setPostsPagination] = useState<PostPaged | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { user } = useAuth();
+  
+  usePageTitle('Início - Rede Social');
 
   const loadTimeline = useCallback(async () => {
     try {
+      // Tenta primeiro buscar posts de todos os usuários (rota que você pediu para implementar)
+      try {
+        const randomPosts = await apiClient.getAllPostsRandom();
+        console.log(`Encontrados ${randomPosts.posts.length} posts aleatórios de todos os usuários`);
+        setPosts(randomPosts.posts);
+        return;
+      } catch (randomError) {
+        console.log("Rota de posts aleatórios não disponível, tentando timeline de amigos:", randomError);
+      }
+      
+      // Se a rota de posts aleatórios não existir, usa o timeline atual
       const timelinePosts = await apiClient.getTimeline();
-      // setPostsPagination(timelinePosts);
+      console.log(`Encontrados ${timelinePosts.posts.length} posts no timeline atual`);
       setPosts(timelinePosts.posts);
+      
     } catch (err) {
-      setError('Failed to load timeline');
-      console.error('Timeline error:', err);
+      console.error("Erro ao carregar posts:", err);
+      setError("Failed to load posts");
+      setPosts([]); // Array vazio ao invés de dados mockados
     } finally {
       setLoading(false);
     }
@@ -36,8 +52,8 @@ const HomePage: React.FC = () => {
       await apiClient.createPost({ content });
       await loadTimeline();
     } catch (err) {
-      setError('Failed to create post');
-      console.error('Create post error:', err);
+      setError("Failed to create post");
+      console.error("Create post error:", err);
     } finally {
       setCreating(false);
     }
@@ -49,39 +65,33 @@ const HomePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-slate-500">Carregando...</div>
+      <div className='min-h-screen bg-slate-50'>
+        <div className='flex justify-center items-center h-64'>
+          <div className='text-slate-500'>Carregando...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div className='min-h-screen bg-slate-50'>
+      <div className='content'>
         <CreatePost onSubmit={handleCreatePost} loading={creating} />
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+        {error && <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4'>{error}</div>}
 
-        <div className="feed">
+        <div className='feed'>
           {posts.length === 0 ? (
-            <div className="no-content">
+            <div className='no-content'>
               <span>😢</span>
-              <p>Você está tão sozinho quanto daquela vez que você ficou chorando no banheiro depois de muito bullying, vá fazer amigos!</p>
+              <p>
+                Você está tão sozinho quanto daquela vez que você ficou chorando no banheiro depois de muito bullying,
+                vá fazer amigos!
+              </p>
             </div>
           ) : (
-            posts.map(post => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onPostDeleted={handlePostDeleted}
-                currentUserId={user?.id}
-              />
+            posts.map((post) => (
+              <PostCard key={post.id} post={post} onPostDeleted={handlePostDeleted} currentUserId={user?.id} />
             ))
           )}
         </div>

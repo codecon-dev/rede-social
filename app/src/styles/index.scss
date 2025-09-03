@@ -1,216 +1,104 @@
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-@import './shell.scss';
-@import './components/navbar.scss';
-@import './components/create-post.scss';
-@import './components/feed.scss';
-@import './components/chat.scss';
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
+@import "./shell.scss";
+@import "./components/navbar.scss";
+@import "./components/sidebar.scss";
+@import "./components/create-post.scss";
+@import "./components/feed.scss";
+@import "./components/chat.scss";
+@import "./components/user-page.scss";
 
 h4,
 label {
-	margin-top: .5rem;
-	font-weight: 600;
+  margin-top: 0.5rem;
+  font-weight: 600;
 }
 
-.profile {
-	.follow-button {
-		margin-top: 1rem;
-		transition: all 0.2s ease;
-
-		&:hover {
-			transform: translateY(-1px);
-		}
-
-		&:disabled {
-			opacity: 0.6;
-			cursor: not-allowed;
-		}
-	}
-
-	button[data-follow-button] {
-		transition: all 0.2s ease;
-		white-space: nowrap;
-		align-self: flex-start;
-		margin-top: 0.25rem;
-
-		&:hover {
-			transform: translateY(-1px);
-		}
-
-		&:disabled {
-			opacity: 0.6;
-			cursor: not-allowed;
-		}
-	}
-
-	.avaliacao-patologica {
-		margin-bottom: 1rem;
-		padding: 1.5rem;
-		background: var(--gray-1);
-		border-radius: 12px;
-		border: 1px solid var(--gray-6);
-		min-width: 250px;
-
-		// Para UserPage (canto direito)
-		.profile-card & {
-			align-self: flex-start;
-			margin-left: auto;
-		}
-
-		.avaliacao-img {
-			width: 50px;
-			height: 50px;
-			border-radius: 8px;
-			object-fit: contain;
-			background: transparent;
-			transition: all 0.2s ease;
-			cursor: pointer;
-			padding: 3px;
-
-			&:hover {
-				transform: scale(1.05);
-				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-			}
-
-			&.voted {
-				border: 2px solid var(--green-9);
-				background: var(--green-2);
-				box-shadow: 0 0 0 2px var(--green-6);
-			}
-		}
-
-		h4 {
-			margin-bottom: 1rem;
-			color: var(--gray-12);
-			font-size: 1rem;
-			font-weight: 600;
-		}
-
-		.patological-title {
-			color: var(--green-11) !important;
-			font-weight: 700;
-			text-align: center;
-		}
-	}
-
-	// Seção específica para o perfil do usuário logado
-	.profile-patological-section {
-		margin-top: 0.75rem;
-		padding: 0.5rem;
-		max-width: fit-content;
-
-		.avaliacao-img {
-			width: 30px;
-			height: 30px;
-			border-radius: 6px;
-			object-fit: contain;
-			background: transparent;
-			transition: all 0.2s ease;
-			padding: 2px;
-
-			&:hover {
-				transform: scale(1.05);
-				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-			}
-		}
-	}
-
-
-
-	// Estilos para os tooltips da avaliação patológica
-	[data-radix-tooltip-content] {
-		max-width: 250px;
-		font-size: 0.875rem;
-		line-height: 1.4;
-		text-align: center;
-		padding: 0.5rem 0.75rem;
-		background: var(--gray-12);
-		color: var(--gray-1);
-		border-radius: 6px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	}
+img {
+  max-width: 100%;
 }
+
 
 .panelinha {
-	padding: 1rem;
+  padding: 1rem;
 
-	.panelinha-card {
-		max-width: 900px;
-		margin: 0 auto;
+  .panelinha-card {
+    max-width: 900px;
+    margin: 0 auto;
 
-		.no-members {
-			text-align: center;
-			padding: 2rem;
+    .no-members {
+      text-align: center;
+      padding: 2rem;
 
-			span {
-				font-size: 3rem;
-				display: block;
-				margin-bottom:  1rem;
-			}
+      span {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 1rem;
+      }
 
-			p {
-				color: var(--gray-11);
-				margin-bottom:  1rem;
-			}
-		}
+      p {
+        color: var(--gray-11);
+        margin-bottom: 1rem;
+      }
+    }
 
-		.members-list {
-			display: flex;
-			flex-direction:  column;
-			gap: 1rem;
+    .members-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
 
-			.member-card {
-				transition: all 0.2s ease;
+      .member-card {
+        transition: all 0.2s ease;
 
-				&:hover {
-					transform: translateY(-1px);
-					box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-				}
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-				.member-info {
-					cursor: pointer;
-					flex: 1;
-				}
-			}
-		}
-	}
+        .member-info {
+          cursor: pointer;
+          flex: 1;
+        }
+      }
+    }
+  }
 }
 
 .not-found {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
 
-	.not-found-card {
-		text-align: center;
-		max-width: 500px;
+  .not-found-card {
+    text-align: center;
+    max-width: 500px;
 
-		h1 {
-			color: var(--red-11);
-			margin: 0 0 1rem 0;
-		}
+    h1 {
+      color: var(--red-11);
+      margin: 0 0 1rem 0;
+    }
 
-		.not-found-message {
-			margin: 1.5rem 0;
+    .not-found-message {
+      margin: 1.5rem 0;
 
-			p {
-				margin: 0.5rem 0;
-				color: var(--gray-11);
-				line-height: 1.6;
-			}
-		}
-	}
+      p {
+        margin: 0.5rem 0;
+        color: var(--gray-11);
+        line-height: 1.6;
+      }
+    }
+  }
 }
 
 .landing-page {
-	padding: 1rem 2rem;
+  padding: 1rem 2rem;
 
-	form {
-		max-width: 600px;
-		margin: 0 auto;
+  form {
+    max-width: 600px;
+    margin: 0 auto;
 
-		button {
-			margin-top: 1rem;
-		}
-	}
+    button {
+      margin-top: 1rem;
+    }
+  }
 }
