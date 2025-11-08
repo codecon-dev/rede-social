@@ -14,8 +14,8 @@ const RegisterForm = ({
     username: '',
     email: '',
     password: '',
-    first_name: '',
-    last_name: '',
+    firstName: '',
+    lastName: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -76,30 +76,30 @@ const RegisterForm = ({
       </div>
       <Flex gap={'2'} align={'center'}>
         <div style={{ flex: 1 }}>
-          <label htmlFor="first_name">
+          <label htmlFor="firstName">
             First Name
           </label>
           <TextField.Root
             type="text"
-            id="first_name"
+            id="firstName"
             placeholder='João'
-            name="first_name"
+            name="firstName"
             size={'3'}
-            value={formData.first_name}
+            value={formData.firstName}
             onChange={handleChange}
           />
         </div>
         <div style={{ flex: 1 }}>
-          <label htmlFor="last_name">
+          <label htmlFor="lastName">
             Last Name
           </label>
           <TextField.Root
             type="text"
-            id="last_name"
+            id="lastName"
             placeholder='Silva'
-            name="last_name"
+            name="lastName"
             size={'3'}
-            value={formData.last_name}
+            value={formData.lastName}
             onChange={handleChange}
           />
         </div>

@@ -45,13 +45,13 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  first_name?: string;
-  last_name?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface UpdateProfileRequest {
-  first_name?: string;
-  last_name?: string;
+  firstName?: string;
+  lastName?: string;
   bio?: string;
 }
 

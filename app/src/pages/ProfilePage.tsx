@@ -121,7 +121,7 @@ const ProfilePage: React.FC = () => {
               <form onSubmit={handleSubmit}>
                 <Flex gap={"4"} justify={"between"}>
                   <div>
-                    <label htmlFor='first_name'>Nome</label>
+                    <label htmlFor='firstName'>Nome</label>
                     <TextField.Root
                       type='text'
                       id='firstName'
@@ -132,7 +132,7 @@ const ProfilePage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor='last_name'>Sobrenome</label>
+                    <label htmlFor='lastName'>Sobrenome</label>
                     <TextField.Root
                       id='lastName'
                       name='lastName'
